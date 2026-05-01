@@ -27,18 +27,20 @@ object LaunchGame {
             return@with true
         }
 
-        // 2) V26 포그라운드 → BACK 으로 메인 복귀 시도
+        // 2) V26 가 포그라운드면 그대로 통과. playball PNG 가 안 잡혀도(또는 캡처 안
+        //    돼있어도) BACK 폭주 안 함. 이후 Task 가 자체적으로 메인으로 복귀 시도함.
         if (GestureService.isV26Foreground()) {
-            onProgress("V26 동작 중 - 메인으로 복귀")
-            if (returnToMainMenu(maxBack = 8)) {
-                onProgress("메인 복귀 완료")
-                return@with true
+            onProgress("V26 동작 중 — 그대로 시작")
+            if (find(BUCKET_HOME, "playball") == null) {
+                Logger.w(
+                    "isOnMainMenu 가 false 인데 V26 가 포그라운드. " +
+                        "home/playball.png 가 없거나 매칭 실패. 일단 BACK 안 누르고 진행."
+                )
             }
-            // 복귀 실패 (게임 깊숙이 들어간 상태일 수도) → 런처에서 재실행 fallback
-            Logger.w("returnToMainMenu 실패 - 런처에서 재실행 시도")
+            return@with true
         }
 
-        // 3) 백그라운드 또는 종료된 상태 → 런처에서 실행
+        // 3) V26 가 백그라운드/종료 상태 → 런처에서 실행
         onProgress("LDPlayer 홈으로 나가는 중")
         if (!GestureService.pressHome()) {
             Logger.e("pressHome failed - 접근성 서비스가 켜져 있는지 확인")
@@ -53,12 +55,21 @@ object LaunchGame {
         }
 
         onProgress("V26 로딩 중...")
-        val arrived = waitForTemplate(
-            BUCKET_HOME, "playball",
-            timeoutMs = 90_000L,
-        ) != null
+        // playball 매칭이 안 되면 isV26Foreground 로 폴백 (대부분 90초 안에 V26 패키지 떠있음)
+        val deadline = System.currentTimeMillis() + 90_000L
+        var arrived = false
+        while (System.currentTimeMillis() < deadline) {
+            if (isOnMainMenu()) { arrived = true; break }
+            if (GestureService.isV26Foreground() &&
+                System.currentTimeMillis() > deadline - 75_000L
+            ) {
+                // 첫 15초가 지나서 V26 가 포그라운드면 "메인 진입했다" 고 가정
+                arrived = true; break
+            }
+            kotlinx.coroutines.delay(500L)
+        }
         if (!arrived) {
-            Logger.e("V26 메인(플레이볼) 진입 타임아웃 - 공지/로그인 화면이 막고 있을 수 있음")
+            Logger.e("V26 메인 진입 타임아웃 - 공지/로그인 화면이 막고 있을 수 있음")
             return@with false
         }
 
