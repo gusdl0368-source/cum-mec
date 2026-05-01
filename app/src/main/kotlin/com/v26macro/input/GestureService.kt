@@ -70,6 +70,26 @@ class GestureService : AccessibilityService() {
         suspend fun longPress(x: Float, y: Float, durationMs: Long = 800L): Boolean =
             tap(x, y, durationMs)
 
+        /**
+         * 현재 포그라운드 앱의 패키지 이름. accessibility_service_config 의
+         * canRetrieveWindowContent=true 가 필요. 못 읽으면 null 반환.
+         */
+        fun foregroundPackage(): String? {
+            val svc = instance ?: return null
+            return try {
+                svc.rootInActiveWindow?.packageName?.toString()
+            } catch (e: Exception) {
+                Logger.w("foregroundPackage failed: ${e.message}")
+                null
+            }
+        }
+
+        /** V26 (com.com2us.*) 가 포그라운드인지 검사. */
+        fun isV26Foreground(): Boolean {
+            val pkg = foregroundPackage() ?: return false
+            return pkg.startsWith("com.com2us")
+        }
+
         /** Press the system HOME key — sends user to LDPlayer launcher. */
         fun pressHome(): Boolean {
             val svc = instance ?: run {
