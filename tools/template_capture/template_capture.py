@@ -40,7 +40,10 @@ PREVIEW_MAX_W = 720
 PREVIEW_MAX_H = 1080
 
 
-def load_coords() -> dict[str, list[float]]:
+def load_coords() -> dict[str, dict]:
+    """coords.json 을 dict 로 로드. 두 가지 형식 모두 정규화해서 dict 로 반환:
+       {"x": float, "y": float, "guard": str|None}
+    """
     if not COORDS_FILE.exists():
         return {}
     try:
@@ -48,17 +51,39 @@ def load_coords() -> dict[str, list[float]]:
         if not text:
             return {}
         data = json.loads(text)
-        return {k: list(v) for k, v in data.items() if isinstance(v, (list, tuple)) and len(v) >= 2}
+        out: dict[str, dict] = {}
+        for k, v in data.items():
+            if isinstance(v, (list, tuple)) and len(v) >= 2:
+                guard = v[2] if len(v) >= 3 and isinstance(v[2], str) and v[2] else None
+                out[k] = {"x": float(v[0]), "y": float(v[1]), "guard": guard}
+            elif isinstance(v, dict) and "x" in v and "y" in v:
+                guard = v.get("guard") or None
+                if not isinstance(guard, str) or not guard.strip():
+                    guard = None
+                out[k] = {"x": float(v["x"]), "y": float(v["y"]), "guard": guard}
+        return out
     except Exception:
         return {}
 
 
-def save_coords(coords: dict[str, list[float]]) -> None:
+def save_coords(coords: dict[str, dict]) -> None:
+    """coords 를 JSON 객체 형식으로 저장. guard 가 None 이면 키 자체를 생략."""
     COORDS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    serializable = {}
+    for k, v in coords.items():
+        entry = {"x": round(float(v["x"]), 4), "y": round(float(v["y"]), 4)}
+        if v.get("guard"):
+            entry["guard"] = v["guard"]
+        serializable[k] = entry
     COORDS_FILE.write_text(
-        json.dumps(coords, ensure_ascii=False, indent=2, sort_keys=True),
+        json.dumps(serializable, ensure_ascii=False, indent=2, sort_keys=True),
         encoding="utf-8",
     )
+
+
+def list_guard_candidates() -> list[str]:
+    """가드로 쓸 수 있는 모든 'bucket/name' 후보 (manifest 의 모든 항목)."""
+    return [f"{b}/{n}" for (b, n, _r, _d) in TEMPLATES]
 
 
 class CaptureApp(tk.Tk):
@@ -177,25 +202,42 @@ class CaptureApp(tk.Tk):
 
         row2 = ttk.Frame(save_panel)
         row2.pack(fill=tk.X, pady=(8, 0))
-        self.crop_info_var = tk.StringVar(value="선택된 영역 없음")
-        ttk.Label(row2, textvariable=self.crop_info_var).pack(side=tk.LEFT)
+        ttk.Label(row2, text="좌표 가드:").pack(side=tk.LEFT)
+        self.guard_var = tk.StringVar(value="(없음)")
+        guard_values = ["(없음)"] + list_guard_candidates()
+        self.guard_combo = ttk.Combobox(
+            row2, textvariable=self.guard_var, width=32, state="readonly",
+            values=guard_values,
+        )
+        self.guard_combo.pack(side=tk.LEFT, padx=(4, 12))
+        ttk.Label(
+            row2,
+            text="이 PNG가 화면에 보일 때만 좌표 탭",
+            foreground="#666",
+        ).pack(side=tk.LEFT)
 
-        ttk.Button(row2, text="PNG로 저장", command=self._save_crop).pack(side=tk.RIGHT)
-        ttk.Button(row2, text="좌표로 저장", command=self._save_coord).pack(
+        row3 = ttk.Frame(save_panel)
+        row3.pack(fill=tk.X, pady=(8, 0))
+        self.crop_info_var = tk.StringVar(value="선택된 영역 없음")
+        ttk.Label(row3, textvariable=self.crop_info_var).pack(side=tk.LEFT)
+
+        ttk.Button(row3, text="PNG로 저장", command=self._save_crop).pack(side=tk.RIGHT)
+        ttk.Button(row3, text="좌표로 저장", command=self._save_coord).pack(
             side=tk.RIGHT, padx=(0, 6)
         )
-        ttk.Button(row2, text="좌표 삭제", command=self._delete_coord).pack(
+        ttk.Button(row3, text="좌표 삭제", command=self._delete_coord).pack(
             side=tk.RIGHT, padx=(0, 6)
         )
-        ttk.Button(row2, text="선택 초기화", command=self._clear_selection).pack(
+        ttk.Button(row3, text="선택 초기화", command=self._clear_selection).pack(
             side=tk.RIGHT, padx=(0, 8)
         )
 
-        row3 = ttk.Frame(save_panel)
-        row3.pack(fill=tk.X, pady=(4, 0))
+        row4 = ttk.Frame(save_panel)
+        row4.pack(fill=tk.X, pady=(4, 0))
         ttk.Label(
-            row3,
-            text="PNG = 템플릿 매칭용 / 좌표 = 항상 같은 위치 탭 (배경색 바뀌는 메뉴 버튼에 추천). 좌표가 정의되면 PNG보다 우선 사용됩니다.",
+            row4,
+            text="PNG = 템플릿 매칭용 / 좌표 = 정해진 위치 탭. 좌표는 PNG보다 우선. "
+                 "가드 PNG를 지정하면 그 PNG가 화면에 보일 때만 좌표를 탭합니다 (안 보이면 실패).",
             foreground="#666",
             wraplength=820,
         ).pack(side=tk.LEFT)
@@ -267,8 +309,16 @@ class CaptureApp(tk.Tk):
         for (b, n, _r, desc) in TEMPLATES:
             if b == bucket and n == name:
                 self.desc_var.set(desc)
-                return
-        self.desc_var.set("")
+                break
+        else:
+            self.desc_var.set("")
+        # 이미 저장된 좌표가 있으면 가드 콤보에 미리 채워줌
+        coords = load_coords()
+        existing = coords.get(f"{bucket}/{name}") if bucket and name else None
+        if existing and existing.get("guard"):
+            self.guard_var.set(existing["guard"])
+        else:
+            self.guard_var.set("(없음)")
 
     def _current_bucket(self) -> str | None:
         v = self.bucket_var.get()
@@ -446,7 +496,10 @@ class CaptureApp(tk.Tk):
         self._clear_selection()
 
     def _save_coord(self) -> None:
-        """선택 영역의 중심을 정규화 좌표로 coords.json 에 저장."""
+        """선택 영역의 중심을 정규화 좌표로 coords.json 에 저장.
+        가드 콤보에서 PNG 가 선택돼 있으면 함께 저장 → 매크로가 그 PNG 가 화면에
+        보일 때만 좌표를 탭함.
+        """
         if not self.full_image:
             messagebox.showwarning("경고", "화면이 없습니다. 먼저 새로고침하세요.")
             return
@@ -474,13 +527,22 @@ class CaptureApp(tk.Tk):
         x_frac = round(cx / w, 4)
         y_frac = round(cy / h, 4)
 
+        guard_choice = self.guard_var.get().strip()
+        guard = None if guard_choice in ("", "(없음)") else guard_choice
+
+        # 자기 자신을 가드로 지정하지 않도록 안전장치
+        if guard == f"{bucket}/{name}":
+            messagebox.showwarning("경고", "가드는 자기 자신이 될 수 없습니다.")
+            return
+
         coords = load_coords()
         key = f"{bucket}/{name}"
-        coords[key] = [x_frac, y_frac]
+        coords[key] = {"x": x_frac, "y": y_frac, "guard": guard}
         save_coords(coords)
+        guard_msg = f", 가드={guard}" if guard else " (가드 없음)"
         self._set_status(
-            f"좌표 저장됨: {key} → ({x_frac}, {y_frac})  "
-            f"[중심 픽셀 ({cx},{cy}) / 화면 {w}x{h}]"
+            f"좌표 저장됨: {key} → ({x_frac}, {y_frac}){guard_msg}  "
+            f"[중심 ({cx},{cy}) / 화면 {w}x{h}]"
         )
         self._populate_tree()
         self._clear_selection()

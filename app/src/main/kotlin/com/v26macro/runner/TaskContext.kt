@@ -54,8 +54,12 @@ class TaskContext(
     }
 
     /**
-     * coords.json 에 정의된 정규화 좌표가 있으면 그 좌표를 그대로 탭하고, 없으면
-     * 템플릿을 찾아 그 중심을 탭한다.
+     * 다음 우선순위로 탭 위치를 결정한다:
+     *  1. coords.json 에 좌표가 정의되어 있으면 그 좌표를 사용
+     *     - 좌표에 guard 템플릿이 지정되어 있으면 그 PNG 가 화면에 보일 때까지 대기 (timeoutMs)
+     *       → 보이면 좌표 탭. 끝까지 안 보이면 실패.
+     *     - guard 가 없으면 그대로 좌표 탭 (현재 화면 상태와 무관)
+     *  2. 좌표가 없으면 기존대로 PNG 템플릿을 매칭해 그 중심을 탭
      */
     suspend fun tapTemplate(
         bucket: String,
@@ -64,12 +68,25 @@ class TaskContext(
         threshold: Double = 0.85,
     ): Boolean {
         // 1) 좌표 우선
-        coords.get(bucket, name)?.let { (xFrac, yFrac) ->
+        val coord = coords.get(bucket, name)
+        if (coord != null) {
+            val guardKey = coord.guardSplit()
+            if (guardKey != null) {
+                val (gb, gn) = guardKey
+                val guardMatch = waitForTemplate(gb, gn, timeoutMs, threshold)
+                if (guardMatch == null) {
+                    Logger.w(
+                        "coord-tap aborted: guard $gb/$gn not visible within ${timeoutMs}ms (target=$bucket/$name)"
+                    )
+                    return false
+                }
+                Logger.i("coord-tap guard $gb/$gn matched score=${"%.3f".format(guardMatch.score)}")
+            }
             val w = screenWidth.coerceAtLeast(1)
             val h = screenHeight.coerceAtLeast(1)
-            val x = (w * xFrac).toInt().coerceIn(0, w - 1)
-            val y = (h * yFrac).toInt().coerceIn(0, h - 1)
-            Logger.i("coord-tap $bucket/$name @($x,$y) (frac=$xFrac,$yFrac)")
+            val x = (w * coord.xFrac).toInt().coerceIn(0, w - 1)
+            val y = (h * coord.yFrac).toInt().coerceIn(0, h - 1)
+            Logger.i("coord-tap $bucket/$name @($x,$y) frac=(${coord.xFrac},${coord.yFrac})")
             val ok = GestureService.tap(x.toFloat(), y.toFloat())
             humanDelay()
             return ok
