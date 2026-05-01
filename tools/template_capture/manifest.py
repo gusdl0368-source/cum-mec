@@ -22,16 +22,26 @@ TEMPLATES = [
 
     # ── 포인트상점 ──
     # 흐름: 메인의 '상점' → 진입 팝업 닫기 → '아이템' 탭 → '포인트상점' 탭
-    #       → 7개 상품 구매 (일반 2종 + 단계별 5회) → X로 종료
+    # 3개 상품 각각 다른 처리:
+    #   1) 데일리 럭키 박스 (무료, 0/1) → 카드 탭 → '무료' 버튼
+    #   2) 50볼 EVENT (10000P, 0/3) → 카드 탭 → '최대 개수 설정' → '구매'
+    #   3) 50볼 단계별 (10000→30000→50000→70000→100000P) → 카드 탭 → 가격 버튼 5번
     ("pointshop", "entry",         True,  "메인 화면의 '상점' 버튼"),
     ("pointshop", "item_tab",      True,  "상점 안의 '아이템' 카테고리 탭"),
     ("pointshop", "pointshop_tab", True,  "아이템 카테고리 안의 '포인트상점' 서브탭"),
-    ("pointshop", "buy_item1",     False, "구매할 일반 상품 1번의 구매 버튼 (없으면 스킵)"),
-    ("pointshop", "buy_item2",     False, "구매할 일반 상품 2번의 구매 버튼 (없으면 스킵)"),
-    ("pointshop", "buy_tier",      True,  "단계별 구매 버튼 — 같은 위치에서 5번 반복 (가격이 10000→30000→…→100000으로 증가). 가격 숫자가 변해도 매칭되도록 아이콘만 작게 크롭 권장"),
-    ("pointshop", "max_buy",       True,  "구매 다이얼로그의 '최대수량구매' 버튼"),
-    ("pointshop", "buy_confirm",   False, "구매 최종 확정 버튼 (다이얼로그가 한 단계 더 있을 때)"),
-    ("pointshop", "exit",          True,  "상점에서 나가는 X 버튼 (보통 좌상단 또는 우상단)"),
+
+    ("pointshop", "card_lucky_box", True, "포인트상점 목록의 '데일리 럭키 박스' 카드 (왼쪽 상품)"),
+    ("pointshop", "free_button",    True, "데일리 럭키 박스 상세 페이지 하단의 '무료' 보라 버튼"),
+
+    ("pointshop", "card_event_50",  True, "포인트상점 목록의 '50볼 EVENT' 카드 (가운데, EVENT 뱃지 포함)"),
+    ("pointshop", "max_quantity",   True, "50볼 EVENT 상세 페이지의 '최대 개수 설정' 버튼"),
+    ("pointshop", "buy_button",     True, "50볼 EVENT 상세 페이지 우측의 '구매' 보라 버튼"),
+
+    ("pointshop", "card_tier_50",   True, "포인트상점 목록의 '50볼' 단계별 카드 (오른쪽, EVENT 뱃지 없음)"),
+    ("pointshop", "tier_buy",       True, "50볼 단계별 상세 하단의 'P xxx,xxx' 가격 보라 버튼 — 5번 반복 탭. 가격 숫자가 변하므로 P 동전 아이콘 + 보라 배경만 작게 크롭 권장"),
+
+    ("pointshop", "purchase_confirm", False, "구매 확인 다이얼로그의 확인 버튼 (없으면 패스)"),
+    ("pointshop", "exit",             False, "상점 종료 X 버튼 (없으면 BACK 키로 처리)"),
 
     # ── 홈런레이스 ──
     # 흐름: 플레이볼 → 홈런레이스 탭 → '플레이' → 결과창 까지 좌상단 '최고스코어' 계속 탭

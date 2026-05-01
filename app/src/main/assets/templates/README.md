@@ -19,16 +19,19 @@ templates/
 │   ├── entry.png                    # 메인의 후원금 아이콘
 │   └── claim.png                    # 정산/수령 버튼
 │
-├── pointshop/                       # 포인트상점
+├── pointshop/                       # 포인트상점 (3개 상품)
 │   ├── entry.png                    # 메인의 '상점' 버튼
 │   ├── item_tab.png                 # 상점 안의 '아이템' 탭
 │   ├── pointshop_tab.png            # 아이템 안의 '포인트상점' 서브탭
-│   ├── buy_item1.png                # 일반 상품 1번 구매 버튼 (선택)
-│   ├── buy_item2.png                # 일반 상품 2번 구매 버튼 (선택)
-│   ├── buy_tier.png                 # 단계별 구매 버튼 (같은 위치 5번 반복)
-│   ├── max_buy.png                  # 구매 다이얼로그의 '최대수량구매'
-│   ├── buy_confirm.png              # 구매 최종 확정 (선택, 다이얼로그가 한 단계 더 있을 때)
-│   └── exit.png                     # 상점 종료 X 버튼
+│   ├── card_lucky_box.png           # 목록의 '데일리 럭키 박스' 카드 (왼쪽)
+│   ├── free_button.png              # 럭키박스 상세의 '무료' 보라 버튼
+│   ├── card_event_50.png            # 목록의 '50볼 EVENT' 카드 (가운데, EVENT 뱃지)
+│   ├── max_quantity.png             # 50볼 EVENT 상세의 '최대 개수 설정'
+│   ├── buy_button.png               # 50볼 EVENT 상세의 '구매' 보라 버튼
+│   ├── card_tier_50.png             # 목록의 '50볼' 단계별 카드 (오른쪽)
+│   ├── tier_buy.png                 # 50볼 단계별 상세의 'P xxx' 가격 버튼 (5번 반복)
+│   ├── purchase_confirm.png         # (선택) 구매 확인 다이얼로그의 확인 버튼
+│   └── exit.png                     # (선택) 상점 종료 X 버튼 - 없으면 BACK 키
 │
 ├── homerunrace/                     # 홈런레이스
 │   ├── entry.png                    # 플레이볼 안의 '홈런레이스' 탭
