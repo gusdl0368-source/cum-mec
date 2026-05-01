@@ -10,6 +10,7 @@ import com.v26macro.runner.tasks.SpecialMatchTask
 import com.v26macro.runner.tasks.SponsorPayoutTask
 import com.v26macro.runner.tasks.Task
 import com.v26macro.util.Logger
+import com.v26macro.vision.CoordLibrary
 import com.v26macro.vision.TemplateLibrary
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,6 +31,7 @@ import kotlinx.coroutines.launch
 class MacroRunner(appContext: Context) {
 
     private val library = TemplateLibrary(appContext)
+    private val coords = CoordLibrary(appContext)
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private var job: Job? = null
 
@@ -58,7 +60,7 @@ class MacroRunner(appContext: Context) {
 
             // ── Prelude: V26 자동 실행 ──
             _state.value = RunnerState.Launching("V26 실행 중")
-            val launchCtx = TaskContext(library) { msg ->
+            val launchCtx = TaskContext(library, coords) { msg ->
                 _state.value = RunnerState.Launching(msg)
             }
             val launched = try {
@@ -78,7 +80,7 @@ class MacroRunner(appContext: Context) {
             val tasks = allTasks.filter { it.kind in enabled }
             for (task in tasks) {
                 _state.value = RunnerState.Running(task.kind, "${task.kind.label} 진행 중")
-                val ctx = TaskContext(library) { msg ->
+                val ctx = TaskContext(library, coords) { msg ->
                     _state.value = RunnerState.Running(task.kind, msg)
                 }
                 val result = try {

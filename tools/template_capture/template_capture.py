@@ -1,8 +1,13 @@
 """V26 템플릿 캡처 도구.
 
-LDPlayer(또는 다른 안드로이드 에뮬레이터)에 ADB로 붙어 화면을 받아오고,
-마우스 드래그로 영역을 잘라 app/src/main/assets/templates/<bucket>/<name>.png
-로 저장합니다.
+LDPlayer(또는 다른 안드로이드 에뮬레이터)에 ADB로 붙어 화면을 받아옵니다.
+
+두 가지 저장 방식:
+  - PNG로 저장: 드래그한 영역을 잘라서 app/src/main/assets/templates/<bucket>/<name>.png 에 저장
+                → 매크로가 OpenCV 템플릿 매칭으로 그 화면/버튼을 찾는 데 사용
+  - 좌표로 저장: 드래그한 영역의 중심점을 정규화 좌표로 app/src/main/assets/coords.json 에 저장
+                → 매크로가 그 위치를 바로 탭. 팀 컬러로 배경이 바뀌는 메뉴 버튼처럼 매칭이
+                  불안정한 곳에서 유용. 좌표가 정의되면 같은 이름의 PNG 보다 우선됨.
 
 사용법:
     python template_capture.py
@@ -11,6 +16,7 @@ LDPlayer(또는 다른 안드로이드 에뮬레이터)에 ADB로 붙어 화면�
 from __future__ import annotations
 
 import io
+import json
 import sys
 import threading
 import tkinter as tk
@@ -28,9 +34,31 @@ from manifest import BUCKET_LABELS, BUCKET_ORDER, TEMPLATES
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 ASSETS_DIR = REPO_ROOT / "app" / "src" / "main" / "assets" / "templates"
+COORDS_FILE = REPO_ROOT / "app" / "src" / "main" / "assets" / "coords.json"
 
 PREVIEW_MAX_W = 720
 PREVIEW_MAX_H = 1080
+
+
+def load_coords() -> dict[str, list[float]]:
+    if not COORDS_FILE.exists():
+        return {}
+    try:
+        text = COORDS_FILE.read_text(encoding="utf-8").strip()
+        if not text:
+            return {}
+        data = json.loads(text)
+        return {k: list(v) for k, v in data.items() if isinstance(v, (list, tuple)) and len(v) >= 2}
+    except Exception:
+        return {}
+
+
+def save_coords(coords: dict[str, list[float]]) -> None:
+    COORDS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    COORDS_FILE.write_text(
+        json.dumps(coords, ensure_ascii=False, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
 
 
 class CaptureApp(tk.Tk):
@@ -151,34 +179,61 @@ class CaptureApp(tk.Tk):
         row2.pack(fill=tk.X, pady=(8, 0))
         self.crop_info_var = tk.StringVar(value="선택된 영역 없음")
         ttk.Label(row2, textvariable=self.crop_info_var).pack(side=tk.LEFT)
-        ttk.Button(row2, text="저장", command=self._save_crop).pack(side=tk.RIGHT)
+
+        ttk.Button(row2, text="PNG로 저장", command=self._save_crop).pack(side=tk.RIGHT)
+        ttk.Button(row2, text="좌표로 저장", command=self._save_coord).pack(
+            side=tk.RIGHT, padx=(0, 6)
+        )
+        ttk.Button(row2, text="좌표 삭제", command=self._delete_coord).pack(
+            side=tk.RIGHT, padx=(0, 6)
+        )
         ttk.Button(row2, text="선택 초기화", command=self._clear_selection).pack(
             side=tk.RIGHT, padx=(0, 8)
         )
 
+        row3 = ttk.Frame(save_panel)
+        row3.pack(fill=tk.X, pady=(4, 0))
+        ttk.Label(
+            row3,
+            text="PNG = 템플릿 매칭용 / 좌표 = 항상 같은 위치 탭 (배경색 바뀌는 메뉴 버튼에 추천). 좌표가 정의되면 PNG보다 우선 사용됩니다.",
+            foreground="#666",
+            wraplength=820,
+        ).pack(side=tk.LEFT)
+
         # 단축키
         self.bind("<F5>", lambda _e: self._capture_screen())
         self.bind("<Control-s>", lambda _e: self._save_crop())
+        self.bind("<Control-d>", lambda _e: self._save_coord())
 
         self._populate_tree()
 
     def _populate_tree(self) -> None:
         for child in self.tree.get_children():
             self.tree.delete(child)
+        coords = load_coords()
         for bucket in BUCKET_ORDER:
             label = f"{BUCKET_LABELS.get(bucket, bucket)}  ({bucket})"
             parent = self.tree.insert("", "end", text=label, open=True, values=(""))
             for (b, name, required, desc) in TEMPLATES:
                 if b != bucket:
                     continue
-                exists = (ASSETS_DIR / b / f"{name}.png").exists()
+                key = f"{b}/{name}"
+                has_png = (ASSETS_DIR / b / f"{name}.png").exists()
+                has_coord = key in coords
                 req_mark = "★" if required else "·"
-                status = "✓" if exists else ("필수" if required else "")
+                if has_coord:
+                    status = "📍"  # 좌표 정의됨 (PNG보다 우선)
+                elif has_png:
+                    status = "✓"
+                elif required:
+                    status = "필수"
+                else:
+                    status = ""
                 self.tree.insert(
                     parent, "end",
                     text=f" {req_mark} {name}  — {desc}",
                     values=(status,),
-                    tags=(f"{b}/{name}",),
+                    tags=(key,),
                 )
 
     def _on_template_select(self, _evt) -> None:
@@ -386,9 +441,67 @@ class CaptureApp(tk.Tk):
             if not messagebox.askyesno("덮어쓰기", f"{out_path.relative_to(REPO_ROOT)} 이(가) 이미 있습니다. 덮어쓸까요?"):
                 return
         crop.save(out_path, format="PNG")
-        self._set_status(f"저장됨: {out_path.relative_to(REPO_ROOT)} ({rw}x{rh})")
+        self._set_status(f"PNG 저장됨: {out_path.relative_to(REPO_ROOT)} ({rw}x{rh})")
         self._populate_tree()
         self._clear_selection()
+
+    def _save_coord(self) -> None:
+        """선택 영역의 중심을 정규화 좌표로 coords.json 에 저장."""
+        if not self.full_image:
+            messagebox.showwarning("경고", "화면이 없습니다. 먼저 새로고침하세요.")
+            return
+        if not (self.sel_start and self.sel_end):
+            messagebox.showwarning(
+                "경고",
+                "좌표로 저장할 위치를 드래그로 표시해주세요. "
+                "드래그한 사각형의 중심점이 좌표로 저장됩니다.",
+            )
+            return
+        bucket = self._current_bucket()
+        name = self.name_var.get().strip()
+        if not bucket or not name:
+            messagebox.showwarning("경고", "버킷과 이름을 선택하세요.")
+            return
+        if not name.replace("_", "").isalnum():
+            messagebox.showwarning("경고", "이름은 영문/숫자/_ 만 사용 가능합니다.")
+            return
+
+        rx, ry, rw, rh = self._rect_in_full()
+        cx = rx + rw // 2
+        cy = ry + rh // 2
+        w = self.full_image.width
+        h = self.full_image.height
+        x_frac = round(cx / w, 4)
+        y_frac = round(cy / h, 4)
+
+        coords = load_coords()
+        key = f"{bucket}/{name}"
+        coords[key] = [x_frac, y_frac]
+        save_coords(coords)
+        self._set_status(
+            f"좌표 저장됨: {key} → ({x_frac}, {y_frac})  "
+            f"[중심 픽셀 ({cx},{cy}) / 화면 {w}x{h}]"
+        )
+        self._populate_tree()
+        self._clear_selection()
+
+    def _delete_coord(self) -> None:
+        bucket = self._current_bucket()
+        name = self.name_var.get().strip()
+        if not bucket or not name:
+            messagebox.showwarning("경고", "버킷과 이름을 선택하세요.")
+            return
+        coords = load_coords()
+        key = f"{bucket}/{name}"
+        if key not in coords:
+            self._set_status(f"좌표 없음: {key}")
+            return
+        if not messagebox.askyesno("좌표 삭제", f"{key} 의 좌표 정의를 삭제할까요?"):
+            return
+        coords.pop(key, None)
+        save_coords(coords)
+        self._set_status(f"좌표 삭제됨: {key}")
+        self._populate_tree()
 
     # ── 상태바 ─────────────────────────────────────────────────────
     def _set_status(self, msg: str) -> None:
