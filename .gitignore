@@ -22,3 +22,6 @@ gradle-app.setting
 !gradle-wrapper.jar
 .gradletasknamecache
 **/.kotlin/
+__pycache__/
+*.pyc
+.venv/
