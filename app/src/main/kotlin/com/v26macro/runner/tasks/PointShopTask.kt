@@ -41,7 +41,15 @@ class PointShopTask : Task {
             return missingAssets("$bucket/entry")
         }
         humanDelay(900L, 300L)
-        // 진입 시 자동으로 뜨는 광고/공지 팝업 닫기
+
+        // 진입 시 뜨는 광고 팝업(예: 라이브 위시 기념 패키지) 처리:
+        //  1) '오늘은 그만 보기' 체크하면 오늘 다시 안 뜸
+        //  2) 큰 X 로 닫기
+        //  3) 그 다음 일반 팝업 (home/popup_close) 도 닫기
+        tapTemplate(bucket, "entry_popup_dontshow", timeoutMs = 2500L)
+        humanDelay(500L, 200L)
+        tapTemplate(bucket, "entry_popup_x", timeoutMs = 2500L)
+        humanDelay(500L, 200L)
         dismissPopups(maxLoops = 3)
 
         // 아이템 카테고리 → 포인트상점 서브탭

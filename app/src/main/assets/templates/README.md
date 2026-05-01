@@ -26,6 +26,8 @@ templates/
 │
 ├── pointshop/                       # 포인트상점 (3개 상품)
 │   ├── entry.png                    # 메인의 '상점' 버튼
+│   ├── entry_popup_dontshow.png     # (선택) 진입 팝업의 '오늘은 그만 보기' - 한 번 체크하면 그날 안 뜸
+│   ├── entry_popup_x.png            # 진입 광고 팝업의 큰 X 닫기 버튼
 │   ├── item_tab.png                 # 상점 안의 '아이템' 탭
 │   ├── pointshop_tab.png            # 아이템 안의 '포인트상점' 서브탭
 │   ├── card_lucky_box.png           # 목록의 '데일리 럭키 박스' 카드 (왼쪽)

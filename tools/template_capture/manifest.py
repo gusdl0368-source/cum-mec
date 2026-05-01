@@ -27,6 +27,8 @@ TEMPLATES = [
     #   2) 50볼 EVENT (10000P, 0/3) → 카드 탭 → '최대 개수 설정' → '구매'
     #   3) 50볼 단계별 (10000→30000→50000→70000→100000P) → 카드 탭 → 가격 버튼 5번
     ("pointshop", "entry",         True,  "메인 화면의 '상점' 버튼"),
+    ("pointshop", "entry_popup_dontshow", False, "상점 첫 진입 광고 팝업의 '오늘은 그만 보기' 체크박스 (한 번 체크하면 다음 실행부터 팝업 안 뜸 — 시간 절약)"),
+    ("pointshop", "entry_popup_x",        True,  "상점 첫 진입 광고 팝업의 큰 X 닫기 버튼 (팝업 아래쪽 가운데). 좌표 + 가드=자기 자신 추천"),
     ("pointshop", "item_tab",      True,  "상점 안의 '아이템' 카테고리 탭"),
     ("pointshop", "pointshop_tab", True,  "아이템 카테고리 안의 '포인트상점' 서브탭"),
 
