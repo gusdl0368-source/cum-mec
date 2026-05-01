@@ -1,1 +1,16 @@
-{}
+{
+  "specialmatch/gauge_left": {
+    "guard": "specialmatch/select_type_header",
+    "x": 0.1472,
+    "y": 0.7023
+  },
+  "specialmatch/random_pick_card": {
+    "x": 0.6806,
+    "y": 0.3227
+  },
+  "specialmatch/start2": {
+    "guard": "specialmatch/direct_play_off",
+    "x": 0.4972,
+    "y": 0.8633
+  }
+}
