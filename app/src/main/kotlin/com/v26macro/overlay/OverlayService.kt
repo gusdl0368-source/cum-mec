@@ -18,7 +18,6 @@ import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistryController
@@ -28,17 +27,11 @@ import com.v26macro.MainActivity
 import com.v26macro.R
 import com.v26macro.V26MacroApp
 import com.v26macro.runner.MacroRunner
-import com.v26macro.runner.RunnerState
-import com.v26macro.runner.TaskKind
 import com.v26macro.util.Logger
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
 /**
- * Foreground service that draws the floating control panel using a Compose
- * overlay view. Hosts its own [MacroRunner] and persists task selection via
- * [MacroSettings].
+ * Floating control panel — 시작/정지 버튼과 현재 진행 상태만 보여준다. 일과 토글/횟수
+ * 같은 설정은 MainActivity 의 카드 UI 에서 관리하고 DataStore (MacroSettings) 에 저장됨.
  */
 class OverlayService : LifecycleService(), SavedStateRegistryOwner, ViewModelStoreOwner {
 
@@ -51,18 +44,12 @@ class OverlayService : LifecycleService(), SavedStateRegistryOwner, ViewModelSto
     private var rootView: ComposeView? = null
     private lateinit var runner: MacroRunner
 
-    private val enabledFlow = MutableStateFlow(TaskKind.values().toSet())
-
     override fun onCreate() {
         super.onCreate()
         savedState.performAttach()
         savedState.performRestore(null)
         wm = getSystemService(WINDOW_SERVICE) as WindowManager
         runner = MacroRunner(applicationContext)
-
-        lifecycleScope.launch {
-            MacroSettings.enabledTasks(applicationContext).collectLatest { enabledFlow.value = it }
-        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -99,18 +86,9 @@ class OverlayService : LifecycleService(), SavedStateRegistryOwner, ViewModelSto
             setViewTreeSavedStateRegistryOwner(this@OverlayService)
             setContent {
                 val state by runner.state.collectAsState()
-                val enabled by enabledFlow.collectAsState()
                 OverlayPanel(
                     state = state,
-                    enabled = enabled,
-                    onToggle = { kind ->
-                        val next = if (kind in enabled) enabled - kind else enabled + kind
-                        enabledFlow.value = next
-                        lifecycleScope.launch {
-                            MacroSettings.setEnabled(applicationContext, next)
-                        }
-                    },
-                    onStart = { runner.start(enabledFlow.value) },
+                    onStart = { runner.start() },
                     onStop = { runner.stop() },
                     onClose = { stopOverlay() },
                 )

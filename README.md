@@ -20,6 +20,17 @@
 
 ## 빌드
 
+### 옵션 1: GitHub Actions 자동 빌드 (추천)
+
+저장소에 푸시하면 GitHub Actions 가 자동으로 디버그 APK 를 빌드합니다.
+
+1. GitHub 저장소 → **Actions** 탭
+2. 최신 "Build APK" 워크플로우 실행 결과 클릭
+3. 페이지 하단의 **Artifacts** 섹션에서 `v26macro-debug-<sha>` 다운로드
+4. ZIP 풀면 `v26macro-debug-<sha>.apk` 가 들어있음
+
+### 옵션 2: 로컬 빌드
+
 ```bash
 ./gradlew :app:assembleDebug
 # APK: app/build/outputs/apk/debug/app-debug.apk

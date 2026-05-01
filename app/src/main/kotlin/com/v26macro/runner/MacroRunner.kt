@@ -1,6 +1,7 @@
 package com.v26macro.runner
 
 import android.content.Context
+import com.v26macro.overlay.MacroSettings
 import com.v26macro.runner.tasks.HomeRunRaceTask
 import com.v26macro.runner.tasks.LaunchGame
 import com.v26macro.runner.tasks.LeagueModeTask
@@ -23,12 +24,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 /**
- * Orchestrates the daily routine across the six tasks. Tasks run sequentially in
- * the order the user requested (후원금 → 포인트상점 → 홈런레이스 → 스페셜매치 →
- * 랭킹챌린지 → 리그모드). Each task is independent — failures don't abort the
- * sequence; they are recorded and the next task still runs.
+ * 사용자 설정(MacroSettings)에 따라 일과를 순차 실행한다:
+ *   - 후원금 정산: ON 이면 1회
+ *   - 포인트상점:   ON 이면 1회
+ *   - 홈런레이스:   homerunCount 만큼 (0 이면 스킵)
+ *   - 스페셜매치:   specialMatchCount 만큼 (0 이면 스킵)
+ *   - 랭킹/리그:    ON 이면 1회 (베타)
  */
-class MacroRunner(appContext: Context) {
+class MacroRunner(private val appContext: Context) {
 
     private val library = TemplateLibrary(appContext)
     private val coords = CoordLibrary(appContext)
@@ -38,24 +41,26 @@ class MacroRunner(appContext: Context) {
     private val _state = MutableStateFlow<RunnerState>(RunnerState.Idle)
     val state: StateFlow<RunnerState> = _state.asStateFlow()
 
-    private val allTasks: List<Task> = listOf(
-        SponsorPayoutTask(),
-        PointShopTask(),
-        HomeRunRaceTask(),
-        SpecialMatchTask(),
-        RankingChallengeTask(),
-        LeagueModeTask(),
-    )
-
     val isRunning: Boolean
         get() = _state.value is RunnerState.Running || _state.value is RunnerState.Launching
 
-    fun start(enabled: Set<TaskKind>) {
+    fun start() {
         if (isRunning) {
             Logger.w("start() ignored - already running")
             return
         }
         job = scope.launch {
+            val cfg = MacroSettings.snapshot(appContext)
+            Logger.i("MacroRunner config: $cfg")
+
+            val tasks: List<Task> = buildList {
+                if (cfg.sponsorEnabled) add(SponsorPayoutTask())
+                if (cfg.pointShopEnabled) add(PointShopTask())
+                if (cfg.homerunCount > 0) add(HomeRunRaceTask(maxRounds = cfg.homerunCount))
+                if (cfg.specialMatchCount > 0) add(SpecialMatchTask(maxRounds = cfg.specialMatchCount))
+                if (cfg.rankingEnabled) add(RankingChallengeTask())
+                if (cfg.leagueEnabled) add(LeagueModeTask())
+            }
             val results = mutableMapOf<TaskKind, TaskResult>()
 
             // ── Prelude: V26 자동 실행 ──
@@ -77,7 +82,6 @@ class MacroRunner(appContext: Context) {
             }
 
             // ── Tasks ──
-            val tasks = allTasks.filter { it.kind in enabled }
             for (task in tasks) {
                 _state.value = RunnerState.Running(task.kind, "${task.kind.label} 진행 중")
                 val ctx = TaskContext(library, coords) { msg ->

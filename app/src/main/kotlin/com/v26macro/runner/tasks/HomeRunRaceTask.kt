@@ -25,11 +25,12 @@ import kotlinx.coroutines.delay
  *
  * 필요한 템플릿: homerunrace/entry, play, top_left_target, confirm, retry
  */
-class HomeRunRaceTask : Task {
+class HomeRunRaceTask(
+    private val maxRounds: Int = 8,         // 사용자가 UI 에서 정한 라운드 수 (0 이면 MacroRunner 가 스킵)
+) : Task {
     override val kind = TaskKind.HomeRunRace
     private val bucket = kind.bucket
 
-    private val maxRounds = 8           // 일일 가능 횟수 안전 상한
     private val resultTimeoutMs = 90_000L  // 한 라운드 최대 길이
 
     override suspend fun run(ctx: TaskContext): TaskResult = with(ctx) {

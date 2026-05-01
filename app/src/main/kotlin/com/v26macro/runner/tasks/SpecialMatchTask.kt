@@ -25,11 +25,12 @@ import com.v26macro.util.humanDelay
  *                start2, result_next, confirm}
  *               (선택) direct_play_on, play_again
  */
-class SpecialMatchTask : Task {
+class SpecialMatchTask(
+    private val maxRounds: Int = 5,         // 사용자가 UI 에서 정한 매치 수 (0 이면 MacroRunner 가 스킵)
+) : Task {
     override val kind = TaskKind.SpecialMatch
     private val bucket = kind.bucket
 
-    private val maxRounds = 5
     private val matchTimeoutMs = 240_000L  // 자동 진행이 길어질 수 있어 4분
 
     override suspend fun run(ctx: TaskContext): TaskResult = with(ctx) {
