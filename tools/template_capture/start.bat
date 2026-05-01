@@ -1,53 +1,75 @@
 @echo off
-setlocal
-chcp 65001 >nul
-title V26 템플릿 캡처 도구
-
+title V26 Template Capture
 cd /d "%~dp0"
 
-REM 1) Python 찾기 (py 런처 우선, 다음 python.exe)
+REM ---------- Find Python ----------
 set "PY="
-where py >nul 2>&1 && (py -3 -c "import sys; sys.exit(0 if sys.version_info >= (3,9) else 1)" >nul 2>&1 && set "PY=py -3")
-if "%PY%"=="" where python >nul 2>&1 && (python -c "import sys; sys.exit(0 if sys.version_info >= (3,9) else 1)" >nul 2>&1 && set "PY=python")
+where py >nul 2>nul
+if not errorlevel 1 set "PY=py -3"
 
 if "%PY%"=="" (
-    echo.
-    echo [!] Python 3.9 이상이 필요합니다.
-    echo.
-    echo     1. https://www.python.org/downloads/ 에서 최신 Python 3 설치
-    echo        ※ 설치 시 'Add python.exe to PATH' 체크 필수!
-    echo     2. 설치 후 이 배치 파일을 다시 실행
-    echo.
-    set /p OPEN="브라우저로 다운로드 페이지를 열까요? (y/N): "
-    if /I "%OPEN%"=="y" start "" "https://www.python.org/downloads/"
-    pause
-    exit /b 1
+    where python >nul 2>nul
+    if not errorlevel 1 set "PY=python"
 )
 
-echo [+] Python: %PY%
+if "%PY%"=="" goto NO_PYTHON
 
-REM 2) Pillow 설치 확인 / 설치
-%PY% -c "import PIL" >nul 2>&1
+REM ---------- Verify Python >= 3.9 ----------
+%PY% -c "import sys; sys.exit(0 if sys.hexversion >= 0x03090000 else 1)"
+if errorlevel 1 goto OLD_PYTHON
+
+echo [OK] Python: %PY%
+
+REM ---------- Install Pillow if missing ----------
+%PY% -c "import PIL" >nul 2>nul
 if errorlevel 1 (
-    echo [+] Pillow 설치 중...
-    %PY% -m pip install --upgrade pip >nul
+    echo [..] Installing Pillow ...
+    %PY% -m pip install --upgrade pip >nul 2>nul
     %PY% -m pip install Pillow
-    if errorlevel 1 (
-        echo [!] Pillow 설치 실패. pip 설정을 확인하세요.
-        pause
-        exit /b 1
-    )
+    if errorlevel 1 goto PIP_FAIL
 )
 
-REM 3) ADB 위치 안내 (LDPlayer 폴더의 adb.exe를 자동 사용)
-echo [+] LDPlayer가 켜져 있는지 확인하세요.
+echo [OK] Make sure LDPlayer is running, then the GUI will open.
 echo.
 
-REM 4) 도구 실행
+REM ---------- Run the GUI ----------
 %PY% template_capture.py
 if errorlevel 1 (
     echo.
-    echo [!] 종료 코드 %ERRORLEVEL%
+    echo [!] Exit code %ERRORLEVEL%
     pause
 )
-endlocal
+exit /b 0
+
+
+:NO_PYTHON
+echo.
+echo [!] Python 3.9+ is required but not found.
+echo.
+echo     1. Download: https://www.python.org/downloads/
+echo     2. IMPORTANT: check "Add python.exe to PATH" during install.
+echo     3. Re-run this start.bat after install.
+echo.
+set /p OPEN="Open download page now? (y/N): "
+if /I "%OPEN%"=="y" start "" "https://www.python.org/downloads/"
+pause
+exit /b 1
+
+
+:OLD_PYTHON
+echo.
+echo [!] Found Python but version is too old. Need 3.9 or newer.
+echo     %PY% --version
+%PY% --version
+echo.
+pause
+exit /b 1
+
+
+:PIP_FAIL
+echo.
+echo [!] Pillow install failed. Check your internet connection.
+echo     Manual install: %PY% -m pip install Pillow
+echo.
+pause
+exit /b 1
