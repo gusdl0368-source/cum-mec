@@ -1,4 +1,8 @@
 {
+  "pointshop/entry": {
+    "x": 0.7,
+    "y": 0.9594
+  },
   "specialmatch/gauge_left": {
     "guard": "specialmatch/select_type_header",
     "x": 0.1472,
