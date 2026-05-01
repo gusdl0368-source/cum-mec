@@ -233,7 +233,7 @@ class CaptureApp(tk.Tk):
         self.guard_combo.pack(side=tk.LEFT, padx=(4, 12))
         ttk.Label(
             row2,
-            text="이 PNG가 화면에 보일 때만 좌표 탭",
+            text="이 PNG가 화면에 보일 때만 좌표 탭 (자기 자신을 골라도 OK — '이 다이얼로그 보이면 그 안의 좌표 탭')",
             foreground="#666",
         ).pack(side=tk.LEFT)
 
@@ -551,10 +551,9 @@ class CaptureApp(tk.Tk):
         guard_choice = self.guard_var.get().strip()
         guard = None if guard_choice in ("", "(없음)") else guard_choice
 
-        # 자기 자신을 가드로 지정하지 않도록 안전장치
-        if guard == f"{bucket}/{name}":
-            messagebox.showwarning("경고", "가드는 자기 자신이 될 수 없습니다.")
-            return
+        # 자기 자신을 가드로 지정하는 것은 OK — "이 항목의 PNG가 화면에 보일 때만
+        # 이 항목의 좌표를 탭" 하는 패턴(예: 종료 다이얼로그가 보이면 그 안의 취소
+        # 버튼 좌표를 탭)에 유용함.
 
         coords = load_coords()
         key = f"{bucket}/{name}"
