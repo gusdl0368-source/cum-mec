@@ -29,8 +29,8 @@ object TemplateMatcher {
     fun findBest(
         frame: Bitmap,
         template: Bitmap,
-        scales: DoubleArray = doubleArrayOf(1.0, 0.9, 1.1, 0.8, 1.2),
-        threshold: Double = 0.85,
+        scales: DoubleArray = doubleArrayOf(1.0, 0.95, 1.05, 0.9, 1.1, 0.85, 1.15, 0.8, 1.2),
+        threshold: Double = 0.75,
         region: Rect? = null,
     ): Match? {
         val frameMat = Mat()

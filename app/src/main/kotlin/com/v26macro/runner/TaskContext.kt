@@ -34,12 +34,31 @@ class TaskContext(
     suspend fun find(
         bucket: String,
         name: String,
-        threshold: Double = 0.85,
+        threshold: Double = 0.75,
         region: Rect? = null,
     ): Match? {
-        val frame = frame() ?: return null
-        val tmpl = library.load(bucket, name) ?: return null
-        return TemplateMatcher.findBest(frame, tmpl, threshold = threshold, region = region)
+        val frame = frame() ?: run {
+            Logger.w("find $bucket/$name: 프레임 아직 없음 (캡처 시작 직후일 수 있음)")
+            return null
+        }
+        val tmpl = library.load(bucket, name) ?: run {
+            Logger.w("find $bucket/$name: 템플릿 PNG 가 없음 (assets/templates/$bucket/$name.png)")
+            return null
+        }
+        val match = TemplateMatcher.findBest(frame, tmpl, threshold = threshold, region = region)
+        if (match == null) {
+            // 임계값을 0 으로 두고 한 번 더 — 진짜 점수가 얼마인지 로그로 남김
+            val attempt = TemplateMatcher.findBest(frame, tmpl, threshold = 0.0, region = region)
+            val scoreStr = attempt?.score?.let { "%.3f".format(it) } ?: "?"
+            val scaleStr = attempt?.scale?.let { "%.2fx".format(it) } ?: "?"
+            Logger.i("find $bucket/$name: NO MATCH (best=$scoreStr at $scaleStr, threshold=$threshold)")
+        } else {
+            Logger.i(
+                "find $bucket/$name: MATCH score=${"%.3f".format(match.score)} " +
+                    "scale=${"%.2fx".format(match.scale)} center=(${match.centerX},${match.centerY})"
+            )
+        }
+        return match
     }
 
     /** Wait for a template to appear, then return its match. */
@@ -47,7 +66,7 @@ class TaskContext(
         bucket: String,
         name: String,
         timeoutMs: Long = 15_000L,
-        threshold: Double = 0.85,
+        threshold: Double = 0.75,
         region: Rect? = null,
     ): Match? = waitFor(timeoutMs = timeoutMs) {
         find(bucket, name, threshold, region)
@@ -65,7 +84,7 @@ class TaskContext(
         bucket: String,
         name: String,
         timeoutMs: Long = 15_000L,
-        threshold: Double = 0.85,
+        threshold: Double = 0.75,
     ): Boolean {
         // 1) 좌표 우선
         val coord = coords.get(bucket, name)

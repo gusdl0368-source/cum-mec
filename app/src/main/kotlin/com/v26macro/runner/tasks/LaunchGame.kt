@@ -21,6 +21,20 @@ import com.v26macro.util.humanDelay
 object LaunchGame {
 
     suspend fun run(ctx: TaskContext, onProgress: (String) -> Unit): Boolean = with(ctx) {
+        // 0) 첫 화면 캡처 대기 — 시작 직후엔 frame() 이 null 이라 매칭이 무조건 실패함
+        val frameDeadline = System.currentTimeMillis() + 5000L
+        while (frame() == null && System.currentTimeMillis() < frameDeadline) {
+            kotlinx.coroutines.delay(150L)
+        }
+        if (frame() == null) {
+            Logger.e("LaunchGame: 화면 캡처가 시작 안 됨 - MediaProjection 권한 확인")
+            return@with false
+        }
+
+        // 디버그: 매크로 시작 시점의 프레임을 디스크에 한 장 저장. 사용자가 이 PNG 와
+        // 자신의 템플릿을 비교해서 매칭이 왜 실패하는지 눈으로 확인할 수 있음.
+        com.v26macro.capture.FrameProvider.dumpToDisk("launch_frame")
+
         // 1) 이미 메인이면 즉시 통과
         if (isOnMainMenu()) {
             onProgress("이미 V26 메인 화면")
