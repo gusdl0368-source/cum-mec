@@ -12,15 +12,18 @@ import kotlinx.coroutines.delay
  * 흐름:
  *   1. (메인) 플레이볼 → 홈런레이스 탭
  *   2. 플레이 버튼
- *   3. 결과창의 '확인' 버튼이 보일 때까지 좌상단 '최고스코어' 영역을 계속 탭
- *      - 도중에 타구 경로 화면이 뜨면(공을 친 경우) ball_path_confirm 으로 넘김
- *   4. 결과창에서:
- *      - 더 돌릴 횟수 남았으면 '재도전' 탭 → 다시 (3)부터
- *      - 없으면 '확인' 탭 → break
- *   5. 메인으로 뒤로가기
+ *   3. 결과창에 도달할 때까지 좌상단 '최고스코어' 영역을 계속 탭. 도중에 공을 친 경우
+ *      타구 경로 화면이 뜨면 '확인' 으로 넘김.
+ *   4. 결과창에서 더 돌릴지에 따라 '재도전' 또는 '확인'.
+ *   5. 메인으로 BACK.
  *
- * 필요한 템플릿: homerunrace/entry, play, top_left_target, confirm
- *               (선택) ball_path_confirm, retry
+ * 같은 '확인' 버튼이 두 화면(타구경로/결과창)에서 똑같이 나타나기 때문에 템플릿만으로는
+ * 구별 불가. 대신 컨텍스트로 구별:
+ *   - 화면에 retry(재도전) 가 보인다 → 결과창 (공 친 경우/못 친 경우 모두 retry 있음)
+ *   - confirm 만 보이고 retry 가 없다 → 타구 경로 화면
+ *   - 둘 다 안 보인다 → 게임플레이 중 (좌상단 탭)
+ *
+ * 필요한 템플릿: homerunrace/entry, play, top_left_target, confirm, retry
  */
 class HomeRunRaceTask : Task {
     override val kind = TaskKind.HomeRunRace
@@ -72,22 +75,29 @@ class HomeRunRaceTask : Task {
     }
 
     /**
-     * 한 라운드: 결과창의 confirm 가 보일 때까지 좌상단을 탭. 도중에 타구 경로 화면이
-     * 나오면 ball_path_confirm 으로 넘김.
+     * 한 라운드: 결과창에 도달할 때까지 좌상단 탭 + 타구 경로 화면 자동 스킵.
+     *
+     * 매 폴링마다 retry / confirm 의 가시성을 조합해 어느 화면인지 결정한다:
+     *   - retry 있음              → 결과창 (loop 종료, 호출자가 retry/confirm 결정)
+     *   - retry 없음 + confirm 있음 → 타구 경로 화면 (confirm 눌러 스킵 후 계속)
+     *   - 둘 다 없음               → 게임플레이 중 (좌상단 탭)
      */
     private suspend fun playOneRound(ctx: TaskContext, timeoutMs: Long): Boolean = with(ctx) {
         val deadline = System.currentTimeMillis() + timeoutMs
         while (System.currentTimeMillis() < deadline) {
-            // 결과창 도달했으면 끝
-            if (find(bucket, "confirm", threshold = 0.85) != null) return true
-            // 타구 경로 화면이면 확인 눌러 넘기기
-            val ballPath = find(bucket, "ball_path_confirm")
-            if (ballPath != null) {
-                tap(ballPath.centerX, ballPath.centerY)
+            val retryMatch = find(bucket, "retry")
+            if (retryMatch != null) {
+                // 결과창 도달 (공 쳤든 못 쳤든 retry 가 있음)
+                return true
+            }
+            val confirmMatch = find(bucket, "confirm")
+            if (confirmMatch != null) {
+                // 타구 경로 화면 - 확인으로 스킵
+                tap(confirmMatch.centerX, confirmMatch.centerY)
                 humanDelay(700L, 200L)
                 continue
             }
-            // 좌상단 '최고스코어' 영역을 탭 (스윙 트리거)
+            // 게임플레이 - 좌상단 '최고스코어' 영역을 탭 (스윙 트리거)
             val topLeft = find(bucket, "top_left_target")
             if (topLeft != null) {
                 tap(topLeft.centerX, topLeft.centerY)

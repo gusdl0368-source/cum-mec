@@ -36,10 +36,10 @@ templates/
 ├── homerunrace/                     # 홈런레이스
 │   ├── entry.png                    # 플레이볼 안의 '홈런레이스' 탭
 │   ├── play.png                     # 플레이/입장 버튼
-│   ├── top_left_target.png          # 좌상단 '최고스코어' 글씨 (계속 탭하는 위치)
-│   ├── ball_path_confirm.png        # 공 친 경우 타구 경로 화면의 확인 (선택)
-│   ├── retry.png                    # 결과창의 재도전 (선택)
-│   └── confirm.png                  # 결과창의 확인 (종료)
+│   ├── top_left_target.png          # 좌상단 '최고스코어' 글씨 (스윙용 탭 위치)
+│   ├── retry.png                    # 결과창의 '재도전' - 결과창임을 구별하는 핵심 식별자
+│   └── confirm.png                  # '확인' - 타구 경로 스킵과 결과창 종료 양쪽에서 같은 모양으로 사용
+│   # 두 화면의 '확인' 은 시각적으로 동일하므로 한 장만 캡처. 매크로가 retry 유무로 어느 화면인지 판단함
 │
 ├── specialmatch/                    # 스페셜매치 - 잠재력 60오버롤
 │   ├── entry.png                    # 플레이볼 안의 '스페셜매치' 탭
