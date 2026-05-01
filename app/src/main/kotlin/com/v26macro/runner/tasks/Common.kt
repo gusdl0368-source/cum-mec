@@ -27,13 +27,17 @@ suspend fun TaskContext.enterFromMainMenu(
 }
 
 /**
- * 게임 내 뒤로가기. home/back 템플릿을 우선 사용하고, 없으면 시스템 BACK 키로 폴백.
+ * 게임 내 뒤로가기. 시스템 BACK 키 (AccessibilityService.GLOBAL_ACTION_BACK) 만 사용한다.
+ * 화면 색깔(팀 컬러)에 영향받지 않으므로 템플릿 매칭보다 안정적.
+ *
+ * 메인에서 BACK 을 누르면 V26이 "게임을 종료하시겠습니까?" 다이얼로그를 띄울 수 있어서,
+ * 호출 후 home/exit_cancel 이 보이면 자동으로 취소를 누른다.
  */
 suspend fun TaskContext.tapBack(): Boolean {
-    val tapped = tapTemplate(BUCKET_HOME, "back", timeoutMs = 1500L)
-    if (tapped) return true
     val ok = GestureService.pressBack()
-    humanDelay()
+    humanDelay(700L, 200L)
+    // 안전장치: 종료 확인 다이얼로그가 떴으면 즉시 취소
+    tapTemplate(BUCKET_HOME, "exit_cancel", timeoutMs = 800L)
     return ok
 }
 
@@ -46,16 +50,28 @@ suspend fun TaskContext.dismissPopups(maxLoops: Int = 4) {
     }
 }
 
-/** 메인 화면이 보일 때까지 뒤로가기를 누름 (최대 [maxBack] 회). */
-suspend fun TaskContext.returnToMainMenu(maxBack: Int = 5): Boolean {
+/**
+ * 메인 화면이 보일 때까지 시스템 BACK 키를 누름 (최대 [maxBack] 회).
+ *
+ * 매 반복마다 아래 순서로 처리한다:
+ *  1. 이미 메인이면 종료
+ *  2. 팝업이 가로막고 있으면 popup_close 로 닫고 다음 반복으로 (BACK 안 누름)
+ *  3. 종료 다이얼로그(메인에서 BACK 한 번 더 눌렀을 때)면 exit_cancel 로 취소 — 메인에 있다는 뜻
+ *  4. 그 외엔 BACK 키 한 번
+ */
+suspend fun TaskContext.returnToMainMenu(maxBack: Int = 6): Boolean {
     repeat(maxBack) {
         if (isOnMainMenu()) return true
-        // 팝업이 가로막고 있으면 먼저 닫기
         if (tapTemplate(BUCKET_HOME, "popup_close", timeoutMs = 800L)) {
             humanDelay()
             return@repeat
         }
-        tapBack()
+        if (tapTemplate(BUCKET_HOME, "exit_cancel", timeoutMs = 600L)) {
+            // 종료 다이얼로그가 떠 있다 = 우리는 메인에 있다.
+            humanDelay()
+            return true
+        }
+        GestureService.pressBack()
         humanDelay(900L, 200L)
     }
     return isOnMainMenu()

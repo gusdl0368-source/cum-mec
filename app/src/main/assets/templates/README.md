@@ -9,10 +9,11 @@ templates/
 ├── launcher/                        # LDPlayer 홈 (게임 자동 실행용)
 │   └── v26_icon.png                 # LDPlayer 홈 화면의 V26(컴프야V26) 아이콘
 │
-├── home/                            # 공용 (메인/팝업/뒤로가기)
+├── home/                            # 공용 (메인/팝업/종료 다이얼로그)
 │   ├── playball.png                 # 메인의 '플레이볼' 메뉴 버튼 - 메인 식별 겸 진입구
-│   ├── back.png                     # 게임 내 일반 뒤로가기 (좌상단 ←)
+│   ├── exit_cancel.png              # '게임 종료?' 다이얼로그의 취소 버튼 (메인에서 실수 BACK 시 자동 취소)
 │   └── popup_close.png              # 일반 팝업의 X (선택)
+│   # 뒤로가기는 템플릿 없이 시스템 BACK 키로 처리합니다 (팀 색깔 무관).
 │
 ├── sponsor/                         # 후원금 정산
 │   ├── entry.png                    # 메인의 후원금 아이콘
