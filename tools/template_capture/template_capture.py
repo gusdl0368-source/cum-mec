@@ -138,20 +138,25 @@ class CaptureApp(tk.Tk):
             side=tk.RIGHT
         )
 
-        # 가운데: 좌측 = 체크리스트 / 우측 = 캡처 영역. PanedWindow 로 가운데 분할선
-        # 드래그 가능. 좌측 트리는 가로 스크롤바도 함께 제공.
+        # 가운데: 좌측 = 체크리스트 / 우측 = 캡처 영역. tk.PanedWindow 로 가운데
+        # 분할선 드래그 가능. 좌측 트리는 가로 스크롤바도 함께 제공.
+        # ttk.PanedWindow 가 아니라 tk.PanedWindow 를 쓰는 이유: minsize/stretch
+        # 옵션이 ttk 버전엔 없어서 좌측 패널이 0px 까지 줄어들 수 있음.
         body = ttk.Frame(self, padding=(8, 4))
         body.pack(fill=tk.BOTH, expand=True)
 
-        paned = ttk.PanedWindow(body, orient=tk.HORIZONTAL)
+        paned = tk.PanedWindow(
+            body, orient=tk.HORIZONTAL,
+            sashwidth=6, sashrelief="raised",
+            bg="#888888",
+        )
         paned.pack(fill=tk.BOTH, expand=True)
         self._paned = paned
 
         # ── 좌측 체크리스트 ──
-        # minsize 로 좌측 트리가 절대 0px 로 밀려나지 않도록 강제 (LDPlayer 세로 모드처럼
-        # 미리보기가 큰 경우에도 트리는 최소 460px 확보).
+        # minsize 로 좌측 트리가 절대 0px 로 밀려나지 않게 강제.
         left = ttk.LabelFrame(paned, text="필요한 템플릿", padding=6)
-        paned.add(left, weight=0, minsize=460)
+        paned.add(left, minsize=460, width=600, sticky="nsew", stretch="never")
 
         tree_frame = ttk.Frame(left)
         tree_frame.pack(fill=tk.BOTH, expand=True)
@@ -161,7 +166,6 @@ class CaptureApp(tk.Tk):
         )
         self.tree.heading("#0", text="버킷 / 이름")
         self.tree.heading("status", text="상태")
-        # stretch=True 이면 좌측 패널을 넓힐 때 #0 컬럼이 자동으로 따라 늘어남
         self.tree.column("#0", width=480, stretch=True, minwidth=240)
         self.tree.column("status", width=70, anchor="center", stretch=False, minwidth=60)
         self.tree.grid(row=0, column=0, sticky="nsew")
@@ -178,13 +182,10 @@ class CaptureApp(tk.Tk):
 
         # ── 우측 캡처 영역 ──
         right = ttk.Frame(paned)
-        paned.add(right, weight=1, minsize=420)
+        paned.add(right, minsize=420, sticky="nsew", stretch="always")
 
         canvas_frame = ttk.LabelFrame(right, text="화면 (드래그로 영역 선택)", padding=6)
         canvas_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
-        # 초기 분할선 위치: 좌측 패널이 약간 넓게 보이도록 600px
-        self.after(80, lambda: paned.sashpos(0, 600))
 
         self.canvas = tk.Canvas(canvas_frame, bg="#202020", highlightthickness=0)
         self.canvas.pack(fill=tk.BOTH, expand=True)
