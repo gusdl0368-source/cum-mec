@@ -49,15 +49,17 @@ templates/
 ├── specialmatch/                    # 스페셜매치 - 잠재력 60오버롤
 │   ├── entry.png                    # 플레이볼 안의 '스페셜매치' 탭
 │   ├── jamjeryeok_tab.png           # 스페셜매치 안의 '잠재력' 탭
-│   ├── match_60ovr.png              # 잠재력의 '60오버롤 매치' 입장
-│   ├── start1.png                   # 1차 스타트
-│   ├── random_pick.png              # 랜덤픽플레이
-│   ├── gauge_handle.png             # 게이지 손잡이 (우측 끝까지 드래그함)
-│   ├── direct_play_on.png           # 직접 플레이 토글이 켜진 상태 (선택, 보이면 끔)
-│   ├── start2.png                   # 최종 스타트
-│   ├── result_next.png              # 결과창의 다음
-│   ├── play_again.png               # 한 번 더 하기 (선택)
-│   └── confirm.png                  # 결과창의 확인 (종료)
+│   ├── carousel_left.png            # 카드 카루셀 좌측 '←' 화살표 (60 OVR 보일 때까지 누름)
+│   ├── match_60ovr.png              # 60 OVR 카드 식별 — '오버롤 60' 글자 영역 권장
+│   ├── match_start1.png             # 60 매치 화면 하단의 'START' 보라 버튼 (1차)
+│   ├── select_type_header.png       # SELECT TYPE 화면 식별 — '/ SELECT TYPE /' 글자
+│   ├── random_pick_card.png         # 랜덤픽 플레이 카드 (선택/비선택 모두 매칭되도록 가운데 사진만)
+│   ├── direct_play_on.png           # 직접 플레이 토글이 ON 상태 (선택, 보이면 OFF)
+│   ├── gauge_left.png               # 게이지 좌측 끝 — 좌표로 저장 + 가드=select_type_header 추천
+│   ├── start2.png                   # SELECT TYPE 화면 하단의 'START' 보라 버튼 (최종)
+│   ├── result_next.png              # 결과창의 '다음' 버튼
+│   ├── play_again.png               # '한 번 더 하기' (선택, 계속 돌릴 때)
+│   └── confirm.png                  # 결과창의 '확인' 버튼 (종료)
 │
 ├── rankingchallenge/                # (예정 — 이후 흐름 받은 뒤 재정의)
 └── leaguemode/                      # (예정)

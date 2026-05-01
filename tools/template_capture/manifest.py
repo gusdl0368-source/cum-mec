@@ -56,20 +56,23 @@ TEMPLATES = [
     ("homerunrace", "retry",           True,  "결과창의 '재도전' 버튼 — 결과창 식별용 (타구 경로 화면엔 없음)"),
     ("homerunrace", "confirm",         True,  "확인 버튼 — 타구 경로(스킵)와 결과창(종료) 양쪽에서 같은 모양으로 사용. 한 장만 캡처"),
 
-    # ── 스페셜매치 ──
-    # 흐름: 플레이볼 → 스페셜매치 → 잠재력 탭 → 60오버롤 매치 → 스타트(1차)
-    #       → 랜덤픽플레이 → 게이지 우측 끝까지 드래그 → 직접플레이 OFF 확인
-    #       → 스타트(2차) → 결과창 다음 → 한 번 더 / 확인
+    # ── 스페셜매치 (잠재력 60오버롤) ──
+    # 흐름: 플레이볼 → 스페셜매치 → 잠재력 → 카루셀에서 60 OVR 카드 보일 때까지 ← 화살표
+    #       → 60 매치 START(1차) → SELECT TYPE 화면
+    #       → 랜덤픽 플레이 카드 → 직접플레이 OFF 확인 → 게이지 좌측 끝 → START(최종)
+    #       → 결과 다음 → 한 번 더 / 확인
     ("specialmatch", "entry",          True,  "플레이볼 안의 '스페셜매치' 탭"),
     ("specialmatch", "jamjeryeok_tab", True,  "스페셜매치 안의 '잠재력' 탭"),
-    ("specialmatch", "match_60ovr",    True,  "잠재력의 '60오버롤 매치' 입장 버튼"),
-    ("specialmatch", "start1",         True,  "라인업 화면 진입을 위한 1차 스타트 버튼"),
-    ("specialmatch", "random_pick",    True,  "'랜덤픽플레이' 버튼"),
-    ("specialmatch", "gauge_handle",   True,  "게이지 손잡이 — 이 위치에서 우측 끝까지 드래그함"),
-    ("specialmatch", "direct_play_on", False, "'직접 플레이' 토글이 켜진 상태에서만 매칭 (보이면 탭해서 끔)"),
-    ("specialmatch", "start2",         True,  "최종 스타트 버튼"),
+    ("specialmatch", "carousel_left",  True,  "잠재력 카드 카루셀 좌측의 '←' 화살표 — 60 OVR 카드 보일 때까지 누름"),
+    ("specialmatch", "match_60ovr",    True,  "잠재력 60 오버롤 카드 식별 — '오버롤 60' 글자 영역 권장"),
+    ("specialmatch", "match_start1",   True,  "60 매치 화면 하단의 'START' 보라 버튼 (1차)"),
+    ("specialmatch", "select_type_header", True, "SELECT TYPE 화면 식별 — 상단의 '/ SELECT TYPE /' 글자 권장"),
+    ("specialmatch", "random_pick_card",   True, "SELECT TYPE 화면의 '랜덤픽 플레이' 카드 (탭하면 선택). 선택/비선택 상태에서 모두 매칭되도록 카드 가운데 사진 위주로 크롭"),
+    ("specialmatch", "direct_play_on", False, "'직접 플레이' 토글이 ON 상태에서만 매칭 — 보이면 탭해서 OFF"),
+    ("specialmatch", "gauge_left",     True,  "게이지 슬라이더 좌측 끝 — 여기를 탭하거나 드래그해서 최소값으로 (좌표 저장 + 가드=select_type_header 추천)"),
+    ("specialmatch", "start2",         True,  "SELECT TYPE 화면 하단의 'START' 보라 버튼 (최종)"),
     ("specialmatch", "result_next",    True,  "결과창의 '다음' 버튼"),
-    ("specialmatch", "play_again",     False, "결과창의 '한 번 더 하기' 버튼"),
+    ("specialmatch", "play_again",     False, "결과창의 '한 번 더 하기' 버튼 (계속 돌릴 때)"),
     ("specialmatch", "confirm",        True,  "결과창의 '확인' 버튼 (종료)"),
 
     # ── 랭킹챌린지 / 리그모드: 사용자 흐름 받은 뒤 추후 정의 ──
