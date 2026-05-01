@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">V26 매크로</string>
+    <string name="accessibility_description">화면에 자동 탭과 스와이프를 주입해 V26 게임을 자동화합니다.</string>
+    <string name="accessibility_summary">V26 매크로 입력 주입</string>
+    <string name="screen_capture_channel">화면 캡처</string>
+    <string name="overlay_channel">매크로 컨트롤</string>
+    <string name="capture_running">화면 캡처 동작 중</string>
+    <string name="overlay_running">매크로 패널 표시 중</string>
+</resources>
