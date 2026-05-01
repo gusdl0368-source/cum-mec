@@ -36,8 +36,8 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 ASSETS_DIR = REPO_ROOT / "app" / "src" / "main" / "assets" / "templates"
 COORDS_FILE = REPO_ROOT / "app" / "src" / "main" / "assets" / "coords.json"
 
-PREVIEW_MAX_W = 720
-PREVIEW_MAX_H = 1080
+PREVIEW_MAX_W = 540
+PREVIEW_MAX_H = 800
 
 
 def load_coords() -> dict[str, dict]:
@@ -90,7 +90,8 @@ class CaptureApp(tk.Tk):
     def __init__(self) -> None:
         super().__init__()
         self.title("V26 템플릿 캡처 도구")
-        self.geometry("1240x900")
+        self.geometry("1400x950")
+        self.minsize(900, 600)
 
         self.adb: AdbClient | None = None
         self.devices: list[Device] = []
@@ -147,8 +148,10 @@ class CaptureApp(tk.Tk):
         self._paned = paned
 
         # ── 좌측 체크리스트 ──
+        # minsize 로 좌측 트리가 절대 0px 로 밀려나지 않도록 강제 (LDPlayer 세로 모드처럼
+        # 미리보기가 큰 경우에도 트리는 최소 460px 확보).
         left = ttk.LabelFrame(paned, text="필요한 템플릿", padding=6)
-        paned.add(left, weight=0)
+        paned.add(left, weight=0, minsize=460)
 
         tree_frame = ttk.Frame(left)
         tree_frame.pack(fill=tk.BOTH, expand=True)
@@ -175,7 +178,7 @@ class CaptureApp(tk.Tk):
 
         # ── 우측 캡처 영역 ──
         right = ttk.Frame(paned)
-        paned.add(right, weight=1)
+        paned.add(right, weight=1, minsize=420)
 
         canvas_frame = ttk.LabelFrame(right, text="화면 (드래그로 영역 선택)", padding=6)
         canvas_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
