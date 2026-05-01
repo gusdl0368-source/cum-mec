@@ -57,8 +57,9 @@ templates/
 │   ├── select_type_header.png       # SELECT TYPE 화면 식별 — '/ SELECT TYPE /' 글자
 │   ├── random_pick_card.png         # 랜덤픽 플레이 카드 (선택/비선택 모두 매칭되도록 가운데 사진만)
 │   ├── direct_play_on.png           # 직접 플레이 토글이 ON 상태 (선택, 보이면 OFF)
+│   ├── direct_play_off.png          # 직접 플레이 토글이 OFF 상태 — start2 의 가드로 사용
 │   ├── gauge_left.png               # 게이지 좌측 끝 — 좌표로 저장 + 가드=select_type_header 추천
-│   ├── start2.png                   # SELECT TYPE 화면 하단의 'START' 보라 버튼 (최종)
+│   ├── start2.png                   # SELECT TYPE 화면 하단의 'START' — 좌표+가드=direct_play_off 추천
 │   ├── result_next.png              # 결과창의 '다음' 버튼
 │   ├── play_again.png               # '한 번 더 하기' (선택, 계속 돌릴 때)
 │   └── confirm.png                  # 결과창의 '확인' 버튼 (종료)

@@ -82,11 +82,13 @@ class SpecialMatchTask : Task {
             ) != null
 
             if (onSelectType) {
-                // 5-1) 랜덤픽 플레이 카드 (이미 선택됐어도 탭하면 무해)
+                // 5-1) 랜덤픽 플레이 카드
+                //   캡처 도구에서 좌표 + 가드=select_type_header 로 저장하면
+                //   "SELECT TYPE 화면일 때만 카드 위치 탭" 으로 동작.
                 tapTemplate(bucket, "random_pick_card", timeoutMs = 4000L)
                 humanDelay()
 
-                // 5-2) 직접 플레이가 ON 상태면 끄기 (OFF 거나 토글이 없으면 패스)
+                // 5-2) 직접 플레이가 ON 상태면 끄기 (direct_play_on 매칭될 때만)
                 val onState = find(bucket, "direct_play_on")
                 if (onState != null) {
                     tap(onState.centerX, onState.centerY)
@@ -94,12 +96,15 @@ class SpecialMatchTask : Task {
                 }
 
                 // 5-3) 게이지를 좌측 끝으로 (최소 볼 사용)
+                //   좌표 + 가드=select_type_header 추천.
                 tapTemplate(bucket, "gauge_left", timeoutMs = 3000L)
                 humanDelay()
 
                 // 5-4) 최종 START
+                //   좌표 + 가드=direct_play_off 추천. 직접플레이가 확실히 OFF 일 때만
+                //   START 가 눌려서 실수로 직접 플레이 모드로 시작되는 사고 방지.
                 if (!tapTemplate(bucket, "start2", timeoutMs = 5000L)) {
-                    progress("스페셜매치: start2 실패")
+                    progress("스페셜매치: start2 실패 (직접플레이 OFF 가드 미충족 가능)")
                     break
                 }
             } else if (round == 1) {
