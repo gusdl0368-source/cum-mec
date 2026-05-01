@@ -63,7 +63,7 @@ class RankingChallengeTask : Task {
         }
 
         tapTemplate(bucket, "exit", timeoutMs = 3000L)
-        dismissPopupsAndReturnToLobby()
+        returnToMainMenu()
         progress("랭킹챌린지 완료: ${played}회")
         return TaskResult.Success
     }

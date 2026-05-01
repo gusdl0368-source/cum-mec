@@ -61,7 +61,7 @@ class LeagueModeTask : Task {
         }
 
         tapTemplate(bucket, "exit", timeoutMs = 3000L)
-        dismissPopupsAndReturnToLobby()
+        returnToMainMenu()
         progress("리그모드 완료: ${played}경기")
         return TaskResult.Success
     }
