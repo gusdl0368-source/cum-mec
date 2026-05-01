@@ -137,34 +137,51 @@ class CaptureApp(tk.Tk):
             side=tk.RIGHT
         )
 
-        # 가운데: 좌측 = 체크리스트 / 우측 = 캡처 영역
+        # 가운데: 좌측 = 체크리스트 / 우측 = 캡처 영역. PanedWindow 로 가운데 분할선
+        # 드래그 가능. 좌측 트리는 가로 스크롤바도 함께 제공.
         body = ttk.Frame(self, padding=(8, 4))
         body.pack(fill=tk.BOTH, expand=True)
 
+        paned = ttk.PanedWindow(body, orient=tk.HORIZONTAL)
+        paned.pack(fill=tk.BOTH, expand=True)
+        self._paned = paned
+
         # ── 좌측 체크리스트 ──
-        left = ttk.LabelFrame(body, text="필요한 템플릿", padding=6)
-        left.pack(side=tk.LEFT, fill=tk.Y, padx=(0, 8))
+        left = ttk.LabelFrame(paned, text="필요한 템플릿", padding=6)
+        paned.add(left, weight=0)
+
+        tree_frame = ttk.Frame(left)
+        tree_frame.pack(fill=tk.BOTH, expand=True)
 
         self.tree = ttk.Treeview(
-            left, columns=("status",), show="tree headings", height=36
+            tree_frame, columns=("status",), show="tree headings", height=36,
         )
         self.tree.heading("#0", text="버킷 / 이름")
         self.tree.heading("status", text="상태")
-        self.tree.column("#0", width=300)
-        self.tree.column("status", width=70, anchor="center")
-        self.tree.pack(side=tk.LEFT, fill=tk.Y)
+        # stretch=True 이면 좌측 패널을 넓힐 때 #0 컬럼이 자동으로 따라 늘어남
+        self.tree.column("#0", width=480, stretch=True, minwidth=240)
+        self.tree.column("status", width=70, anchor="center", stretch=False, minwidth=60)
+        self.tree.grid(row=0, column=0, sticky="nsew")
         self.tree.bind("<<TreeviewSelect>>", self._on_template_select)
 
-        sb = ttk.Scrollbar(left, orient="vertical", command=self.tree.yview)
-        sb.pack(side=tk.LEFT, fill=tk.Y)
-        self.tree.configure(yscrollcommand=sb.set)
+        vsb = ttk.Scrollbar(tree_frame, orient="vertical", command=self.tree.yview)
+        vsb.grid(row=0, column=1, sticky="ns")
+        hsb = ttk.Scrollbar(tree_frame, orient="horizontal", command=self.tree.xview)
+        hsb.grid(row=1, column=0, sticky="ew")
+        self.tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
+
+        tree_frame.rowconfigure(0, weight=1)
+        tree_frame.columnconfigure(0, weight=1)
 
         # ── 우측 캡처 영역 ──
-        right = ttk.Frame(body)
-        right.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        right = ttk.Frame(paned)
+        paned.add(right, weight=1)
 
         canvas_frame = ttk.LabelFrame(right, text="화면 (드래그로 영역 선택)", padding=6)
         canvas_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        # 초기 분할선 위치: 좌측 패널이 약간 넓게 보이도록 600px
+        self.after(80, lambda: paned.sashpos(0, 600))
 
         self.canvas = tk.Canvas(canvas_frame, bg="#202020", highlightthickness=0)
         self.canvas.pack(fill=tk.BOTH, expand=True)
