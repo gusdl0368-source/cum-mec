@@ -2,6 +2,7 @@ package com.v26macro.runner
 
 import android.content.Context
 import com.v26macro.runner.tasks.HomeRunRaceTask
+import com.v26macro.runner.tasks.LaunchGame
 import com.v26macro.runner.tasks.LeagueModeTask
 import com.v26macro.runner.tasks.PointShopTask
 import com.v26macro.runner.tasks.RankingChallengeTask
@@ -44,7 +45,8 @@ class MacroRunner(appContext: Context) {
         LeagueModeTask(),
     )
 
-    val isRunning: Boolean get() = _state.value is RunnerState.Running
+    val isRunning: Boolean
+        get() = _state.value is RunnerState.Running || _state.value is RunnerState.Launching
 
     fun start(enabled: Set<TaskKind>) {
         if (isRunning) {
@@ -53,6 +55,26 @@ class MacroRunner(appContext: Context) {
         }
         job = scope.launch {
             val results = mutableMapOf<TaskKind, TaskResult>()
+
+            // ── Prelude: V26 자동 실행 ──
+            _state.value = RunnerState.Launching("V26 실행 중")
+            val launchCtx = TaskContext(library) { msg ->
+                _state.value = RunnerState.Launching(msg)
+            }
+            val launched = try {
+                LaunchGame.run(launchCtx) { msg ->
+                    _state.value = RunnerState.Launching(msg)
+                }
+            } catch (t: Throwable) {
+                Logger.e("LaunchGame crashed", t)
+                false
+            }
+            if (!launched) {
+                _state.value = RunnerState.Done(results, launchOk = false)
+                return@launch
+            }
+
+            // ── Tasks ──
             val tasks = allTasks.filter { it.kind in enabled }
             for (task in tasks) {
                 _state.value = RunnerState.Running(task.kind, "${task.kind.label} 진행 중")
@@ -68,7 +90,7 @@ class MacroRunner(appContext: Context) {
                 Logger.i("task ${task.kind} -> $result")
                 results[task.kind] = result
             }
-            _state.value = RunnerState.Done(results)
+            _state.value = RunnerState.Done(results, launchOk = true)
         }
     }
 

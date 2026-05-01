@@ -6,6 +6,8 @@
 
 ```
 templates/
+├── launcher/              # LDPlayer 홈 화면 (매크로가 V26 자동 실행할 때 사용)
+│   └── v26_icon.png       # LDPlayer 홈 화면의 V26(컴프야V26) 아이콘
 ├── home/                  # 로비/팝업 공용 (모든 Task에서 사용)
 │   ├── lobby_button.png   # 로비로 돌아가는 홈 버튼
 │   ├── lobby_indicator.png# 로비 화면임을 식별하는 고유 요소(예: 좌하단 메뉴바)

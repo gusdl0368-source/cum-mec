@@ -17,6 +17,10 @@ sealed class TaskResult {
 
 sealed class RunnerState {
     data object Idle : RunnerState()
+    data class Launching(val progress: String) : RunnerState()
     data class Running(val current: TaskKind, val progress: String) : RunnerState()
-    data class Done(val results: Map<TaskKind, TaskResult>) : RunnerState()
+    data class Done(
+        val results: Map<TaskKind, TaskResult>,
+        val launchOk: Boolean = true,
+    ) : RunnerState()
 }

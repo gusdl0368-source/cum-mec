@@ -74,8 +74,11 @@ fun OverlayPanel(
                 Text(
                     text = when (val s = state) {
                         RunnerState.Idle -> "대기"
+                        is RunnerState.Launching -> "[게임 실행] ${s.progress}"
                         is RunnerState.Running -> "[${s.current.label}] ${s.progress}"
-                        is RunnerState.Done -> "완료: ${s.results.size}개 태스크"
+                        is RunnerState.Done -> if (s.launchOk)
+                            "완료: ${s.results.size}개 태스크"
+                        else "게임 실행 실패"
                     },
                     color = Color(0xFFE5E7EB),
                     style = MaterialTheme.typography.bodySmall,

@@ -7,6 +7,9 @@ required=False 면 있으면 좋지만 없어도 Task가 우회 가능.
 """
 
 TEMPLATES = [
+    # ── LDPlayer 홈 화면 (게임 실행용) ──
+    ("launcher", "v26_icon", True, "LDPlayer 홈 화면의 V26(컴프야V26) 아이콘"),
+
     # ── 공용: 로비, 팝업 ──
     ("home", "lobby_button",   True,  "로비/홈으로 가는 버튼 (메뉴바의 홈 아이콘)"),
     ("home", "lobby_indicator",True,  "로비 화면임을 식별하는 고유 요소 (예: 좌하단 메뉴바 일부)"),
@@ -73,6 +76,7 @@ TEMPLATES = [
 ]
 
 BUCKET_LABELS = {
+    "launcher":          "LDPlayer 홈 (게임 실행)",
     "home":              "공용 (로비/팝업)",
     "sponsor":           "후원금 정산",
     "pointshop":         "포인트상점",
@@ -82,5 +86,5 @@ BUCKET_LABELS = {
     "leaguemode":        "리그모드",
 }
 
-BUCKET_ORDER = ["home", "sponsor", "pointshop", "homerunrace",
+BUCKET_ORDER = ["launcher", "home", "sponsor", "pointshop", "homerunrace",
                 "specialmatch", "rankingchallenge", "leaguemode"]

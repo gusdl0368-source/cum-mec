@@ -70,6 +70,21 @@ class GestureService : AccessibilityService() {
         suspend fun longPress(x: Float, y: Float, durationMs: Long = 800L): Boolean =
             tap(x, y, durationMs)
 
+        /** Press the system HOME key — sends user to LDPlayer launcher. */
+        fun pressHome(): Boolean {
+            val svc = instance ?: run {
+                Logger.w("pressHome requested but accessibility service not connected")
+                return false
+            }
+            return svc.performGlobalAction(GLOBAL_ACTION_HOME)
+        }
+
+        /** Press BACK — useful for exiting popups/menus. */
+        fun pressBack(): Boolean {
+            val svc = instance ?: return false
+            return svc.performGlobalAction(GLOBAL_ACTION_BACK)
+        }
+
         suspend fun swipe(
             x1: Float, y1: Float, x2: Float, y2: Float,
             durationMs: Long = 300L,
