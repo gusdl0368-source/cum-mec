@@ -42,12 +42,20 @@ class HomeRunRaceTask : Task {
 
         var played = 0
         for (round in 1..maxRounds) {
-            // 플레이 버튼이 더 이상 안 보이면 일과 종료(횟수 소진)
-            if (!tapTemplate(bucket, "play", timeoutMs = 5000L)) {
-                progress("홈런레이스: 플레이 버튼 없음 - 종료")
-                break
+            // 1라운드는 플레이 버튼 필수. 2라운드부터는 '재도전' 으로 곧바로 시작될 수
+            // 있어서 플레이 버튼이 안 보이면 그냥 폴링 루프로 진입.
+            if (round == 1) {
+                if (!tapTemplate(bucket, "play", timeoutMs = 5000L)) {
+                    progress("홈런레이스: 플레이 버튼 없음 - 종료")
+                    break
+                }
+                humanDelay(900L, 300L)
+            } else {
+                // 짧게만 시도. 안 보이면 바로 게임 진행 중이라고 가정.
+                if (tapTemplate(bucket, "play", timeoutMs = 1500L)) {
+                    humanDelay(900L, 300L)
+                }
             }
-            humanDelay(900L, 300L)
 
             // 게임 진행: confirm(또는 ball_path_confirm) 보일 때까지 좌상단 탭 반복
             val ok = playOneRound(this, resultTimeoutMs)
@@ -65,6 +73,7 @@ class HomeRunRaceTask : Task {
                 dismissPopups(maxLoops = 2)
                 break
             }
+            // 재도전 후 다음 라운드는 보통 자동 시작. 다음 iter 에서 짧게 play 만 시도하고 폴링 진입.
             dismissPopups(maxLoops = 2)
         }
 
