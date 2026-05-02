@@ -30,7 +30,7 @@ class LeagueModeTask : Task {
 
     private val maxGameMs = 15 * 60 * 1000L     // 한 게임 최대 15분
     private val postGameTimeoutMs = 90_000L     // 결과 → 다음매치 처리 1.5분
-    private val maxGames = 30                   // 안전 상한 (자연 종료 우선)
+    // 게임 수 상한 없음 — 자연 종료 (play_again 안 보임 = 일일 한도 도달) 까지 무한 반복
 
     override suspend fun run(ctx: TaskContext): TaskResult = with(ctx) {
         progress("리그모드 시작")
@@ -62,9 +62,11 @@ class LeagueModeTask : Task {
         }
         humanDelay(1500L, 300L)
 
-        // ── 다중 게임 루프 ──
+        // ── 다중 게임 루프 (자연 종료 시까지 무한) ──
         var gamesPlayed = 0
-        for (gameNum in 1..maxGames) {
+        var gameNum = 0
+        while (true) {
+            gameNum++
             progress("리그모드: ${gameNum}경기 진행")
 
             // 한 게임 진행 (인게임 자동 처리)
