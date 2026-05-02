@@ -79,6 +79,7 @@ templates/
 │   ├── summary_done.png             # 5경기 끝난 뒤 '총 5게임 진행 결과' 헤더
 │   ├── summary_confirm.png          # 그 화면의 '확인' 파란 버튼
 │   ├── refresh_button.png           # 우상단 갱신 버튼 (무료/포인트/스타 공용 위치) — 좌표 추천
+│   ├── refresh_paid_confirm.png     # (선택) 포인트/스타 갱신 시 한 번 더 뜨는 확인 버튼
 │   ├── refresh_done.png             # (선택) '금일 갱신 완료' 상태 — 보이면 매크로 종료
 │   └── incomplete_confirm.png       # (선택, 드물게 뜸) '경기 안 한 상대' 팝업의 '확인'
 │

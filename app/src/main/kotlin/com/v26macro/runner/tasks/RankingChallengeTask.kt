@@ -4,32 +4,28 @@ import com.v26macro.runner.TaskContext
 import com.v26macro.runner.TaskKind
 import com.v26macro.runner.TaskResult
 import com.v26macro.util.humanDelay
+import java.util.Calendar
 
 /**
  * 랭킹챌린지.
  *
- * 한 세트 = 5경기. 한 세트가 끝나면 '총 5게임 진행 결과' 화면이 떠서 '확인' 후 메인 복귀.
- * 그 다음 갱신 버튼을 누르면 상대 리스트가 즉시 갱신되고 또 5경기를 돌릴 수 있음.
+ * 한 세트 = 5경기. 한 세트 끝나면 '총 5게임 진행 결과' 화면 → '확인' → 메인. 갱신 버튼으로
+ * 새 5경기 가져옴. 무료 갱신 3 + 포인트 6 + 스타 6 = 갱신 15회 (V26 가 같은 버튼 라벨만
+ * 바꿈). 무료는 즉시 갱신, 포인트/스타는 추가 확인 다이얼로그 한 번 더 필요.
  *
- * 갱신 우선순위 (V26 가 자동으로 라벨만 바꿔줌, 같은 위치 버튼):
- *   1. 무료 갱신 3회 (즉시 갱신, 다이얼로그 없음)
- *   2. 포인트 갱신 6회 (P × 3,000 — 게임 포인트 차감)
- *   3. 스타 갱신 6회 (★ × 50 — 스타 차감)
- *   4. '금일 갱신 완료' 표시되면 종료
- *
- * 모든 갱신을 자동 진행. 1세트 + 갱신 15회 = 최대 16세트(80경기). 사용자가 포인트/스타를
- * 안 쓰고 싶으면 maxSets 만 줄이면 됨 (현재 16, 무료만 쓰려면 4).
+ * 요일별 횟수 (다음날 매칭이 어제 점수 기준이라 마지막 5판은 일부러 안 돌리는 전략):
+ *   - 월요일: 17세트(85경기) — 일요일에 남긴 갱신권 + 오늘 풀 소진
+ *   - 그 외:  15세트(75경기) — 마지막 1세트(5경기) 의도적 미플레이
  *
  * 필요한 템플릿:
  *   rankingchallenge/{entry, continuous_play, proceed, result_indicator, next,
  *                     summary_done, summary_confirm, refresh_button}
- *   (선택) refresh_done, incomplete_confirm
+ *   (선택) refresh_paid_confirm, refresh_done, incomplete_confirm
  */
 class RankingChallengeTask : Task {
     override val kind = TaskKind.RankingChallenge
     private val bucket = kind.bucket
 
-    private val maxSets = 16                 // 1 + 3 free + 6 point + 6 star
     private val matchTimeoutMs = 120_000L    // 한 경기 최대 2분
     private val summaryWaitMs = 30_000L      // 5경기 후 총결과 화면 대기
 
@@ -40,6 +36,12 @@ class RankingChallengeTask : Task {
             return missingAssets("home/playball or $bucket/entry")
         }
         humanDelay(900L, 200L)
+
+        // 월요일이면 풀로 (어제 남긴 5판 + 오늘 풀 = 85경기 = 17세트)
+        // 그 외엔 마지막 1세트 남기고 종료 (= 15세트)
+        val isMonday = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY
+        val maxSets = if (isMonday) 17 else 15
+        progress("월요일=${isMonday}, 목표 ${maxSets}세트")
 
         var totalMatches = 0
         var setsPlayed = 0
@@ -89,7 +91,7 @@ class RankingChallengeTask : Task {
                 progress("총 결과 화면 못 봄 - 갱신 시도")
             }
 
-            // 4) 갱신 (다음 세트로 이어짐). 마지막 세트면 갱신 안 누름.
+            // 4) 갱신 (다음 세트로 이어짐). 마지막 세트면 갱신 안 누름 = "마지막 5판 남기기" 정책.
             val isLastSet = set == maxSets
             if (!isLastSet) {
                 if (find(bucket, "refresh_done") != null) {
@@ -101,14 +103,19 @@ class RankingChallengeTask : Task {
                     break
                 }
                 humanDelay(900L, 200L)
-                // 가끔 뜨는 '경기 안한 상대 있음' 팝업 처리
-                tapTemplate(bucket, "incomplete_confirm", timeoutMs = 1500L)
-                humanDelay(700L, 200L)
+                // 포인트/스타 갱신은 추가 확인 다이얼로그가 한 번 더 뜸 (무료는 안 뜸).
+                // 안 떠도 무해 (tapTemplate 가 1.5초 안에 못 찾으면 그냥 패스).
+                tapTemplate(bucket, "refresh_paid_confirm", timeoutMs = 1500L)
+                humanDelay(600L, 200L)
+                // 드물게 '경기 안한 상대 있음' 팝업
+                tapTemplate(bucket, "incomplete_confirm", timeoutMs = 1200L)
+                humanDelay(500L, 200L)
             }
         }
 
         returnToMainMenu()
-        progress("랭킹챌린지 완료: ${setsPlayed}세트 / ${totalMatches}경기")
+        val mode = if (isMonday) "월요일 풀" else "마지막5판 보존"
+        progress("랭킹챌린지 완료: ${setsPlayed}세트 / ${totalMatches}경기 ($mode)")
         return TaskResult.Success
     }
 
