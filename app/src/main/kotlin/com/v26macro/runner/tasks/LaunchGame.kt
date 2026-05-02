@@ -69,46 +69,34 @@ object LaunchGame {
         }
 
         onProgress("V26 로딩 중...")
-        // 로딩이 길게 걸릴 수 있어 최대 3분 대기. 두 가지 신호로 "도착" 판단:
-        //   A. home/playball PNG 가 매칭 (가장 확실)
-        //   B. V26 패키지가 일정 시간 이상 안정적으로 포그라운드 (PNG 매칭 실패해도 폴백)
+        // 메인 화면 진입 신호 = home/playball PNG 매칭. 다른 폴백 없음 (이전엔 V26
+        // 포그라운드 25초로 메인이라고 가정했는데, 로딩/스플래시/공지 화면에서도
+        // V26 가 포그라운드라 너무 일찍 진행해버림. playball 매칭만 신뢰하도록.)
         val maxWaitMs = 180_000L
         val startMs = System.currentTimeMillis()
         val deadline = startMs + maxWaitMs
-        var stableForegroundFromMs: Long? = null
         var arrived = false
 
         while (System.currentTimeMillis() < deadline) {
-            val nowMs = System.currentTimeMillis()
-            val elapsed = (nowMs - startMs) / 1000
+            val elapsed = (System.currentTimeMillis() - startMs) / 1000
 
-            // A. 메인 PNG 매칭 → 즉시 통과
             if (isOnMainMenu()) {
                 Logger.i("LaunchGame: home/playball 매칭 (${elapsed}초)")
                 arrived = true
                 break
             }
 
-            // B. V26 가 포그라운드로 안정되면 통과
             if (GestureService.isV26Foreground()) {
-                if (stableForegroundFromMs == null) stableForegroundFromMs = nowMs
-                val stableFor = (nowMs - stableForegroundFromMs!!) / 1000
-                if (stableFor >= 25) {
-                    Logger.i("LaunchGame: V26 ${stableFor}초 포그라운드 안정 - 메인 가정")
-                    arrived = true
-                    break
-                }
-                onProgress("V26 로딩 중... ${elapsed}s (안정 ${stableFor}s)")
+                onProgress("V26 로딩 중... ${elapsed}s (플레이볼 대기)")
             } else {
-                // 잠깐 백그라운드는 무시 (스플래시/광고 화면 등). 카운터는 리셋 안 함.
-                onProgress("V26 로딩 중... ${elapsed}s")
+                onProgress("V26 로딩 중... ${elapsed}s (대기)")
             }
 
             kotlinx.coroutines.delay(800L)
         }
 
         if (!arrived) {
-            Logger.e("V26 메인 진입 타임아웃 (${maxWaitMs / 1000}s) - 공지/로그인이 막고 있을 가능성")
+            Logger.e("V26 메인(플레이볼) 진입 타임아웃 - 공지/로그인이 막고 있거나 playball PNG 매칭 안 됨")
             return@with false
         }
 
