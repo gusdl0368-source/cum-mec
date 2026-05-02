@@ -113,7 +113,9 @@ class LeagueModeTask : Task {
 
             if (!inSimulation) {
                 // 1) 라이브 플레이 5/5 → 시뮬 전환
-                if (find(bucket, "live_play_full") != null) {
+                // 0.9 임계값 강제 — 5개 체크 패턴이 1/5, 2/5 상태와 구별돼야 하는데
+                // 기본 임계값(0.75)으론 부분 매칭도 통과해버림.
+                if (find(bucket, "live_play_full", threshold = 0.9) != null) {
                     progress("리그모드: 라이브 5/5 감지 - 시뮬 전환 시도")
                     if (switchToSimulation(this)) {
                         inSimulation = true
