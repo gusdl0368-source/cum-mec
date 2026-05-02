@@ -87,14 +87,21 @@ TEMPLATES = [
     ("specialmatch", "confirm",        True,  "결과창의 '확인' 버튼 (종료)"),
 
     # ── 랭킹챌린지 ──
-    # 흐름: 플레이볼 → 리그모드 → 랭킹챌린지 카드 → '연속 경기' → 다이얼로그 '경기 진행'
-    #       → 5경기 자동 진행, 매 결과창마다 '다음 경기 시작' (5초 카운트다운 즉시 스킵)
-    #       → 마지막 5/5 결과의 '다음' → 메인 BACK
+    # 흐름: 플레이볼 → 리그모드 → 랭킹챌린지 → '연속 경기' → '경기 진행' 다이얼로그
+    #       → 5경기 자동 진행 (매 결과창 next 즉시 탭으로 5초 카운트 스킵)
+    #       → '총 5게임 진행 결과' 화면 → '확인' → 메인 복귀
+    #       → 갱신 버튼 탭 (무료 3 → 포인트 6 → 스타 6 순서로 자동 라벨 변경)
+    #       → 갱신 완료되면 다시 5경기. '금일 갱신 완료' 보이면 전체 종료.
     ("rankingchallenge", "entry",            True, "리그모드 화면의 '랭킹 챌린지' 카드 (좌상단, 트로피 + BRONZE)"),
     ("rankingchallenge", "continuous_play",  True, "랭킹챌린지 메인 하단의 '연속 경기' 보라 버튼 (5경기 자동 진행 트리거)"),
     ("rankingchallenge", "proceed",          True, "'알림' 다이얼로그의 '경기 진행' 파란 버튼"),
     ("rankingchallenge", "result_indicator", True, "한 경기 결과 화면 식별 — 'LOSE' / 'WIN' 영역 또는 '경기 결과' 헤더 권장"),
-    ("rankingchallenge", "next",             True, "결과 화면의 '다음 경기 시작 (n)' 또는 '다음 (n)' 파란 버튼 — 매 결과 화면 같은 위치라 좌표 + 가드=result_indicator 추천"),
+    ("rankingchallenge", "next",             True, "결과 화면의 '다음 경기 시작 (n)' 또는 '다음 (n)' 버튼 — 위치 고정이라 좌표+가드=result_indicator 추천"),
+    ("rankingchallenge", "summary_done",     True, "5경기 모두 끝난 뒤 뜨는 '총 5게임 진행 결과' 화면 식별 — 헤더 텍스트 권장"),
+    ("rankingchallenge", "summary_confirm",  True, "'총 5게임 진행 결과' 화면 하단의 '확인' 파란 버튼"),
+    ("rankingchallenge", "refresh_button",   True, "메인 우상단의 갱신 버튼 — 무료/포인트/스타 모두 같은 위치 (글자만 변함). 좌표+가드=continuous_play 추천"),
+    ("rankingchallenge", "refresh_done",     False, "갱신 버튼이 '금일 갱신 완료' 상태일 때만 매칭 — 보이면 매크로 종료"),
+    ("rankingchallenge", "incomplete_confirm", False, "(드물게) '경기를 완료하지 않은 상대가 있습니다' 팝업의 '확인' — 보통 안 뜸"),
 
     # ── 리그모드 / 추후 정의 ──
     ("leaguemode",       "entry", False, "(추후) 플레이볼 안의 '리그모드' 탭"),

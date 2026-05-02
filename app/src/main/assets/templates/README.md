@@ -70,12 +70,17 @@ templates/
 │   ├── play_again.png               # '한 번 더 하기' (선택, 계속 돌릴 때)
 │   └── confirm.png                  # 결과창의 '확인' 버튼 (종료)
 │
-├── rankingchallenge/                # 랭킹챌린지 (5경기 연속 자동)
-│   ├── entry.png                    # 리그모드의 '랭킹 챌린지' 카드 (트로피+BRONZE)
-│   ├── continuous_play.png          # 메인 하단 '연속 경기' 보라 버튼
-│   ├── proceed.png                  # 알림 다이얼로그의 '경기 진행' 파란 버튼
-│   ├── result_indicator.png         # 한 경기 결과 화면 식별 ('LOSE'/'WIN' 또는 '경기 결과' 헤더)
-│   └── next.png                     # 결과 화면의 '다음 경기 시작 (n)' / '다음' — 좌표+가드=result_indicator 추천
+├── rankingchallenge/                # 랭킹챌린지 (5경기 × 다세트 + 자동 갱신)
+│   ├── entry.png                    # 리그모드의 '랭킹 챌린지' 카드
+│   ├── continuous_play.png          # '연속 경기' 보라 버튼
+│   ├── proceed.png                  # '경기 진행' 다이얼로그 파란 버튼
+│   ├── result_indicator.png         # 한 경기 결과 화면 식별
+│   ├── next.png                     # '다음 경기 시작' / '다음' 버튼 — 좌표+가드=result_indicator
+│   ├── summary_done.png             # 5경기 끝난 뒤 '총 5게임 진행 결과' 헤더
+│   ├── summary_confirm.png          # 그 화면의 '확인' 파란 버튼
+│   ├── refresh_button.png           # 우상단 갱신 버튼 (무료/포인트/스타 공용 위치) — 좌표 추천
+│   ├── refresh_done.png             # (선택) '금일 갱신 완료' 상태 — 보이면 매크로 종료
+│   └── incomplete_confirm.png       # (선택, 드물게 뜸) '경기 안 한 상대' 팝업의 '확인'
 │
 └── leaguemode/                      # (예정 — 사용자 흐름 받은 뒤 정의)
 ```
