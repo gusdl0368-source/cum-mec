@@ -3,6 +3,10 @@
     "x": 0.7,
     "y": 0.9594
   },
+  "pointshop/exit": {
+    "x": 0.4986,
+    "y": 0.9547
+  },
   "specialmatch/gauge_left": {
     "guard": "specialmatch/select_type_header",
     "x": 0.1472,
