@@ -10,6 +10,7 @@ import com.v26macro.runner.tasks.RankingChallengeTask
 import com.v26macro.runner.tasks.SpecialMatchTask
 import com.v26macro.runner.tasks.SponsorPayoutTask
 import com.v26macro.runner.tasks.Task
+import com.v26macro.runner.tasks.BUCKET_HOME
 import com.v26macro.util.Logger
 import com.v26macro.vision.CoordLibrary
 import com.v26macro.vision.TemplateLibrary
@@ -18,9 +19,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 /**
@@ -52,6 +55,26 @@ class MacroRunner(private val appContext: Context) {
         job = scope.launch {
             val cfg = MacroSettings.snapshot(appContext)
             Logger.i("MacroRunner config: $cfg")
+
+            // ── 종료 다이얼로그 watchdog ──
+            // BACK 이 의도치 않게 더 눌리거나 시스템에서 BACK 이벤트가 발생해서
+            // "게임을 종료하시겠습니까?" 다이얼로그가 떴을 때 매크로 어떤 단계에서든
+            // 자동으로 취소를 누르도록 백그라운드에서 감시. 부모 코루틴(매크로)이
+            // 끝나거나 stop() 으로 취소되면 자동으로 같이 종료됨.
+            launch {
+                val watchCtx = TaskContext(library, coords) { /* 진행 메시지 안 갱신 */ }
+                while (isActive) {
+                    try {
+                        delay(900L)
+                        if (watchCtx.find(BUCKET_HOME, "exit_cancel") != null) {
+                            Logger.w("watchdog: 게임 종료 다이얼로그 감지 - 자동 취소")
+                            watchCtx.tapTemplate(BUCKET_HOME, "exit_cancel", timeoutMs = 1500L)
+                        }
+                    } catch (t: Throwable) {
+                        Logger.w("watchdog 오류 (계속 동작): ${t.message}")
+                    }
+                }
+            }
 
             val tasks: List<Task> = buildList {
                 if (cfg.sponsorEnabled) add(SponsorPayoutTask())
