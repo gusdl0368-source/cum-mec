@@ -86,6 +86,15 @@ object LaunchGame {
                 break
             }
 
+            // 게임이 켜졌지만 이벤트 팝업/광고가 플레이볼을 가리고 있는 케이스 —
+            // popup_close (X) 가 보이면 닫고 다시 체크. popup_close 매칭 자체가
+            // "게임이 켜진 상태에 팝업이 떠있다" 는 신호이기도 함.
+            if (tapTemplate(BUCKET_HOME, "popup_close", timeoutMs = 800L)) {
+                onProgress("V26 로딩 중... ${elapsed}s (팝업 닫음)")
+                humanDelay(700L, 200L)
+                continue
+            }
+
             if (GestureService.isV26Foreground()) {
                 onProgress("V26 로딩 중... ${elapsed}s (플레이볼 대기)")
             } else {
