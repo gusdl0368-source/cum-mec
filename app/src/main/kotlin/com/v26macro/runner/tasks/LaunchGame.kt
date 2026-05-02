@@ -69,25 +69,50 @@ object LaunchGame {
         }
 
         onProgress("V26 로딩 중...")
-        // playball 매칭이 안 되면 isV26Foreground 로 폴백 (대부분 90초 안에 V26 패키지 떠있음)
-        val deadline = System.currentTimeMillis() + 90_000L
+        // 로딩이 길게 걸릴 수 있어 최대 3분 대기. 두 가지 신호로 "도착" 판단:
+        //   A. home/playball PNG 가 매칭 (가장 확실)
+        //   B. V26 패키지가 일정 시간 이상 안정적으로 포그라운드 (PNG 매칭 실패해도 폴백)
+        val maxWaitMs = 180_000L
+        val startMs = System.currentTimeMillis()
+        val deadline = startMs + maxWaitMs
+        var stableForegroundFromMs: Long? = null
         var arrived = false
+
         while (System.currentTimeMillis() < deadline) {
-            if (isOnMainMenu()) { arrived = true; break }
-            if (GestureService.isV26Foreground() &&
-                System.currentTimeMillis() > deadline - 75_000L
-            ) {
-                // 첫 15초가 지나서 V26 가 포그라운드면 "메인 진입했다" 고 가정
-                arrived = true; break
+            val nowMs = System.currentTimeMillis()
+            val elapsed = (nowMs - startMs) / 1000
+
+            // A. 메인 PNG 매칭 → 즉시 통과
+            if (isOnMainMenu()) {
+                Logger.i("LaunchGame: home/playball 매칭 (${elapsed}초)")
+                arrived = true
+                break
             }
-            kotlinx.coroutines.delay(500L)
+
+            // B. V26 가 포그라운드로 안정되면 통과
+            if (GestureService.isV26Foreground()) {
+                if (stableForegroundFromMs == null) stableForegroundFromMs = nowMs
+                val stableFor = (nowMs - stableForegroundFromMs!!) / 1000
+                if (stableFor >= 25) {
+                    Logger.i("LaunchGame: V26 ${stableFor}초 포그라운드 안정 - 메인 가정")
+                    arrived = true
+                    break
+                }
+                onProgress("V26 로딩 중... ${elapsed}s (안정 ${stableFor}s)")
+            } else {
+                // 잠깐 백그라운드는 무시 (스플래시/광고 화면 등). 카운터는 리셋 안 함.
+                onProgress("V26 로딩 중... ${elapsed}s")
+            }
+
+            kotlinx.coroutines.delay(800L)
         }
+
         if (!arrived) {
-            Logger.e("V26 메인 진입 타임아웃 - 공지/로그인 화면이 막고 있을 수 있음")
+            Logger.e("V26 메인 진입 타임아웃 (${maxWaitMs / 1000}s) - 공지/로그인이 막고 있을 가능성")
             return@with false
         }
 
-        onProgress("V26 메인 화면 진입 완료")
+        onProgress("V26 진입 완료")
         return@with true
     }
 }
