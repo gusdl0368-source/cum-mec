@@ -28,22 +28,13 @@ suspend fun TaskContext.enterFromMainMenu(
 }
 
 /**
- * 게임 내 뒤로가기.
+ * 게임 내 뒤로가기. 시스템 BACK 키 (AccessibilityService.GLOBAL_ACTION_BACK) 만 사용.
+ * 팀 컬러로 색이 변하는 시각 버튼은 템플릿 매칭이 불안정해서 사용 안 함.
  *
- * 우선순위:
- *  1. 시각 버튼 home/back_button (있으면) 탭 — 시스템 BACK 안 먹히는 화면 대비
- *  2. 시스템 BACK 키 (AccessibilityService.GLOBAL_ACTION_BACK) — 폴백
- *
+ * 메인에서 BACK 을 누르면 V26 가 "게임을 종료하시겠습니까?" 다이얼로그를 띄울 수 있어서
  * 호출 후 home/exit_cancel 이 보이면 자동으로 취소를 누른다.
  */
 suspend fun TaskContext.tapBack(): Boolean {
-    // 1) 시각 뒤로가기 버튼 우선 시도 (있으면)
-    if (tapTemplate(BUCKET_HOME, "back_button", timeoutMs = 600L)) {
-        humanDelay(900L, 250L)
-        tapTemplate(BUCKET_HOME, "exit_cancel", timeoutMs = 800L)
-        return true
-    }
-    // 2) 시스템 BACK 키 폴백
     val ok = GestureService.pressBack()
     humanDelay(900L, 250L)
     tapTemplate(BUCKET_HOME, "exit_cancel", timeoutMs = 800L)
@@ -60,14 +51,13 @@ suspend fun TaskContext.dismissPopups(maxLoops: Int = 4) {
 }
 
 /**
- * 메인 화면이 보일 때까지 화면 BACK / 시스템 BACK 키 반복 (최대 [maxBack] 회).
+ * 메인 화면이 보일 때까지 시스템 BACK 키 반복 (최대 [maxBack] 회).
  *
  * 매 반복마다 아래 순서로 처리한다:
  *  1. 이미 메인이면 종료
  *  2. 팝업이 가로막고 있으면 popup_close 로 닫고 다음 반복 (BACK 안 누름)
- *  3. 종료 다이얼로그(메인에서 BACK 한 번 더 눌렀을 때) → exit_cancel 로 취소 → 메인 도착
- *  4. 화면 안의 시각 '뒤로 가기' 버튼(back_button) 이 있으면 탭
- *  5. 없으면 시스템 BACK 키
+ *  3. 종료 다이얼로그(메인에서 BACK 한 번 더 눌렀을 때) → exit_cancel → 메인 도착
+ *  4. 그 외엔 시스템 BACK 키 (팀 컬러 무관, 안정적)
  *
  * 각 단계마다 어떤 액션을 했는지 로그에 남겨서 디버그 용이.
  */
@@ -84,19 +74,13 @@ suspend fun TaskContext.returnToMainMenu(maxBack: Int = 10): Boolean {
             return@repeat
         }
         if (tapTemplate(BUCKET_HOME, "exit_cancel", timeoutMs = 600L)) {
-            // 종료 다이얼로그가 떠 있다 = 우리는 메인에 있다.
             Logger.i("returnToMainMenu: ${iter + 1}번째 — exit_cancel 매칭 (메인 가정)")
             humanDelay(800L, 200L)
             return true
         }
-        if (tapTemplate(BUCKET_HOME, "back_button", timeoutMs = 600L)) {
-            Logger.i("returnToMainMenu: ${iter + 1}번째 — 시각 back_button 탭")
-            humanDelay(1100L, 300L)  // 화면 전환 충분히 대기
-            return@repeat
-        }
         Logger.i("returnToMainMenu: ${iter + 1}번째 — 시스템 BACK 키")
         GestureService.pressBack()
-        humanDelay(1100L, 300L)
+        humanDelay(1200L, 300L)
     }
     val finallyOk = isOnMainMenu()
     Logger.w("returnToMainMenu: ${maxBack}회 시도 후 결과 = $finallyOk")

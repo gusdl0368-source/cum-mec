@@ -10,12 +10,12 @@ TEMPLATES = [
     ("launcher", "v26_icon", True, "LDPlayer 홈 화면의 V26(컴프야V26) 아이콘"),
 
     # ── 공용: V26 메인/팝업/탐색 ──
-    # 뒤로가기는 시스템 BACK 키(접근성 GLOBAL_ACTION_BACK)로 처리하므로 별도 템플릿 불필요.
+    # 뒤로가기는 시스템 BACK 키(접근성 GLOBAL_ACTION_BACK)로만 처리. 시각 '뒤로 가기'
+    # 버튼은 팀 컬러로 색이 변해서 PNG 매칭이 불안정하기 때문.
     # 단, 메인에서 BACK 을 한 번 더 누르면 "게임 종료?" 다이얼로그가 뜨므로 exit_cancel 필요.
     ("home", "playball",     True,  "메인 화면의 '플레이볼' 메뉴 버튼 (홈런/스페셜/랭킹/리그 진입구) — 메인임을 식별하는 용도 겸용"),
     ("home", "exit_cancel",  True,  "'게임을 종료하시겠습니까?' 다이얼로그의 취소/아니오 버튼 (메인에서 실수로 BACK 눌렸을 때 자동 취소)"),
     ("home", "popup_close",  False, "일반 팝업의 X 닫기 버튼"),
-    ("home", "back_button",  False, "각 메뉴 하단의 '◀ 뒤로 가기' 시각 버튼 (선택) — 시스템 BACK 키가 안 먹힐 때 폴백"),
 
     # ── 후원금 정산 ──
     ("sponsor", "entry",   True, "메인 화면의 후원금 아이콘"),
