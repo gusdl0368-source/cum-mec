@@ -86,8 +86,17 @@ TEMPLATES = [
     ("specialmatch", "play_again",     False, "결과창의 '한 번 더 하기' 버튼 (계속 돌릴 때)"),
     ("specialmatch", "confirm",        True,  "결과창의 '확인' 버튼 (종료)"),
 
-    # ── 랭킹챌린지 / 리그모드: 사용자 흐름 받은 뒤 추후 정의 ──
-    ("rankingchallenge", "entry", False, "(추후) 플레이볼 안의 '랭킹챌린지' 탭"),
+    # ── 랭킹챌린지 ──
+    # 흐름: 플레이볼 → 리그모드 → 랭킹챌린지 카드 → '연속 경기' → 다이얼로그 '경기 진행'
+    #       → 5경기 자동 진행, 매 결과창마다 '다음 경기 시작' (5초 카운트다운 즉시 스킵)
+    #       → 마지막 5/5 결과의 '다음' → 메인 BACK
+    ("rankingchallenge", "entry",            True, "리그모드 화면의 '랭킹 챌린지' 카드 (좌상단, 트로피 + BRONZE)"),
+    ("rankingchallenge", "continuous_play",  True, "랭킹챌린지 메인 하단의 '연속 경기' 보라 버튼 (5경기 자동 진행 트리거)"),
+    ("rankingchallenge", "proceed",          True, "'알림' 다이얼로그의 '경기 진행' 파란 버튼"),
+    ("rankingchallenge", "result_indicator", True, "한 경기 결과 화면 식별 — 'LOSE' / 'WIN' 영역 또는 '경기 결과' 헤더 권장"),
+    ("rankingchallenge", "next",             True, "결과 화면의 '다음 경기 시작 (n)' 또는 '다음 (n)' 파란 버튼 — 매 결과 화면 같은 위치라 좌표 + 가드=result_indicator 추천"),
+
+    # ── 리그모드 / 추후 정의 ──
     ("leaguemode",       "entry", False, "(추후) 플레이볼 안의 '리그모드' 탭"),
 ]
 

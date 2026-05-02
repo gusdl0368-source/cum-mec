@@ -70,8 +70,14 @@ templates/
 │   ├── play_again.png               # '한 번 더 하기' (선택, 계속 돌릴 때)
 │   └── confirm.png                  # 결과창의 '확인' 버튼 (종료)
 │
-├── rankingchallenge/                # (예정 — 이후 흐름 받은 뒤 재정의)
-└── leaguemode/                      # (예정)
+├── rankingchallenge/                # 랭킹챌린지 (5경기 연속 자동)
+│   ├── entry.png                    # 리그모드의 '랭킹 챌린지' 카드 (트로피+BRONZE)
+│   ├── continuous_play.png          # 메인 하단 '연속 경기' 보라 버튼
+│   ├── proceed.png                  # 알림 다이얼로그의 '경기 진행' 파란 버튼
+│   ├── result_indicator.png         # 한 경기 결과 화면 식별 ('LOSE'/'WIN' 또는 '경기 결과' 헤더)
+│   └── next.png                     # 결과 화면의 '다음 경기 시작 (n)' / '다음' — 좌표+가드=result_indicator 추천
+│
+└── leaguemode/                      # (예정 — 사용자 흐름 받은 뒤 정의)
 ```
 
 ## 캡처 가이드
