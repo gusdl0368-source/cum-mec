@@ -1,11 +1,24 @@
 {
+  "homerunrace/first_player": {
+    "guard": "homerunrace/first_player",
+    "x": 0.1833,
+    "y": 0.6266
+  },
   "pointshop/entry": {
     "x": 0.7,
     "y": 0.9594
   },
+  "pointshop/entry_popup_x": {
+    "x": 0.4986,
+    "y": 0.9336
+  },
   "pointshop/exit": {
     "x": 0.4986,
     "y": 0.9547
+  },
+  "rankingchallenge/refresh_button": {
+    "x": 0.7778,
+    "y": 0.432
   },
   "specialmatch/gauge_left": {
     "guard": "specialmatch/select_type_header",
