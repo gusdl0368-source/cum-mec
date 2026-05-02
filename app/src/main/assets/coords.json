@@ -4,6 +4,11 @@
     "x": 0.1833,
     "y": 0.6266
   },
+  "leaguemode/full_play_card": {
+    "guard": "leaguemode/select_type_header",
+    "x": 0.7958,
+    "y": 0.4062
+  },
   "pointshop/entry": {
     "x": 0.7,
     "y": 0.9594
