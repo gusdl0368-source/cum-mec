@@ -93,6 +93,7 @@ TEMPLATES = [
     #       → 갱신 버튼 탭 (무료 3 → 포인트 6 → 스타 6 순서로 자동 라벨 변경)
     #       → 갱신 완료되면 다시 5경기. '금일 갱신 완료' 보이면 전체 종료.
     ("rankingchallenge", "entry",            True, "리그모드 화면의 '랭킹 챌린지' 카드 (좌상단, 트로피 + BRONZE)"),
+    ("rankingchallenge", "play_ball",        True, "상대 카드 우측의 'PLAY BALL' 흰색 버튼 — 매치 가능 신호 (5명 다 두면 5번 다 보임). 안 보이면 매크로가 갱신/종료 판단"),
     ("rankingchallenge", "continuous_play",  True, "랭킹챌린지 메인 하단의 '연속 경기' 보라 버튼 (5경기 자동 진행 트리거)"),
     ("rankingchallenge", "proceed",          True, "'알림' 다이얼로그의 '경기 진행' 파란 버튼"),
     ("rankingchallenge", "result_indicator", True, "한 경기 결과 화면 식별 — 'LOSE' / 'WIN' 영역 또는 '경기 결과' 헤더 권장"),

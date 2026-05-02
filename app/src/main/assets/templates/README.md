@@ -72,6 +72,7 @@ templates/
 │
 ├── rankingchallenge/                # 랭킹챌린지 (5경기 × 다세트 + 자동 갱신)
 │   ├── entry.png                    # 리그모드의 '랭킹 챌린지' 카드
+│   ├── play_ball.png                # 상대 카드 우측의 'PLAY BALL' 버튼 — 매치 가능 신호
 │   ├── continuous_play.png          # '연속 경기' 보라 버튼
 │   ├── proceed.png                  # '경기 진행' 다이얼로그 파란 버튼
 │   ├── result_indicator.png         # 한 경기 결과 화면 식별

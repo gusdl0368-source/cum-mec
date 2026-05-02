@@ -53,6 +53,12 @@ class RankingChallengeTask : Task {
                 break
             }
 
+            // 핵심 신호: PLAY BALL 이 보이면 = 매치 가능. 안 보이면 갱신 필요/종료.
+            if (find(bucket, "play_ball") == null) {
+                progress("PLAY BALL 안 보임 - 매치 없음 (종료)")
+                break
+            }
+
             progress("랭킹챌린지: ${set}번째 5경기 세트")
             setsPlayed = set
 
