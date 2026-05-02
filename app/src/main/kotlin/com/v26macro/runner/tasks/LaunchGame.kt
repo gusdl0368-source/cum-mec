@@ -8,14 +8,16 @@ import com.v26macro.util.humanDelay
 /**
  * 매크로 시작 시 V26을 메인 화면으로 끌어오는 단계.
  *
- * 우선순위:
- *   1. 이미 메인(`home/playball`)이면 그대로 통과
- *   2. V26 이 포그라운드 앱이면 (접근성으로 com.com2us.* 패키지 확인) 메인으로 BACK 만 눌러
- *      복귀 시도. 매크로 정지하고 다시 시작했을 때 게임을 굳이 닫고 다시 켜지 않게 해줌.
- *   3. 둘 다 아니면 LDPlayer 홈으로 나가서 `launcher/v26_icon` 을 찾아 실행.
+ * 단순 로직:
+ *   1. 이미 메인(`home/playball` 매칭)이면 → 그대로 통과
+ *   2. 아니면 → LDPlayer 홈으로 나가서 `launcher/v26_icon` 을 찾아 실행 → playball 대기
+ *
+ * 이전엔 "V26 포그라운드면 통과" 단축 경로가 있었는데, 게임이 꺼진 상태인데도
+ * 가끔 V26 패키지가 포그라운드로 잘못 잡혀서 launcher 단계를 건너뛰고 첫 일과가
+ * 곧바로 실패하는 케이스가 있었음. 이젠 메인 PNG 매칭만 신뢰.
  *
  * 필요한 템플릿:
- *  - assets/templates/launcher/v26_icon.png  → LDPlayer 홈의 V26 아이콘 (3 단계에서 사용)
+ *  - assets/templates/launcher/v26_icon.png  → LDPlayer 홈의 V26 아이콘
  *  - assets/templates/home/playball.png      → 메인 화면의 '플레이볼' 메뉴 버튼
  */
 object LaunchGame {
@@ -41,20 +43,8 @@ object LaunchGame {
             return@with true
         }
 
-        // 2) V26 가 포그라운드면 그대로 통과. playball PNG 가 안 잡혀도(또는 캡처 안
-        //    돼있어도) BACK 폭주 안 함. 이후 Task 가 자체적으로 메인으로 복귀 시도함.
-        if (GestureService.isV26Foreground()) {
-            onProgress("V26 동작 중 — 그대로 시작")
-            if (find(BUCKET_HOME, "playball") == null) {
-                Logger.w(
-                    "isOnMainMenu 가 false 인데 V26 가 포그라운드. " +
-                        "home/playball.png 가 없거나 매칭 실패. 일단 BACK 안 누르고 진행."
-                )
-            }
-            return@with true
-        }
-
-        // 3) V26 가 백그라운드/종료 상태 → 런처에서 실행
+        // 2) 메인 아니면 무조건 런처 경로로 (V26 가 켜져있으면 아이콘 탭이 다시
+        //    포그라운드로 가져오고, 꺼져있으면 새로 시작함 — 두 케이스 다 OK).
         onProgress("LDPlayer 홈으로 나가는 중")
         if (!GestureService.pressHome()) {
             Logger.e("pressHome failed - 접근성 서비스가 켜져 있는지 확인")
@@ -106,12 +96,7 @@ object LaunchGame {
                 continue
             }
 
-            if (GestureService.isV26Foreground()) {
-                onProgress("V26 로딩 중... ${elapsed}s (플레이볼 대기)")
-            } else {
-                onProgress("V26 로딩 중... ${elapsed}s (대기)")
-            }
-
+            onProgress("V26 로딩 중... ${elapsed}s (플레이볼 대기)")
             kotlinx.coroutines.delay(800L)
         }
 
