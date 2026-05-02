@@ -11,6 +11,8 @@ import com.v26macro.runner.tasks.SpecialMatchTask
 import com.v26macro.runner.tasks.SponsorPayoutTask
 import com.v26macro.runner.tasks.Task
 import com.v26macro.runner.tasks.BUCKET_HOME
+import com.v26macro.runner.tasks.isOnMainMenu
+import com.v26macro.runner.tasks.returnToMainMenu
 import com.v26macro.util.Logger
 import com.v26macro.vision.CoordLibrary
 import com.v26macro.vision.TemplateLibrary
