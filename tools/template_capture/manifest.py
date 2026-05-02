@@ -105,8 +105,20 @@ TEMPLATES = [
     ("rankingchallenge", "refresh_done",     False, "갱신 버튼이 '금일 갱신 완료' 상태일 때만 매칭 — 보이면 매크로 종료"),
     ("rankingchallenge", "incomplete_confirm", False, "(드물게) '경기를 완료하지 않은 상대가 있습니다' 팝업의 '확인' — 보통 안 뜸"),
 
-    # ── 리그모드 / 추후 정의 ──
-    ("leaguemode",       "entry", False, "(추후) 플레이볼 안의 '리그모드' 탭"),
+    # ── 리그모드 ──
+    # 흐름: 플레이볼 → 리그모드 배너 → 리그 메인 → 'PLAY BALL'
+    #       → SELECT TYPE 화면 → '풀 플레이' → 'START'
+    #       → 로딩/인트로 (마이크 탭으로 스킵)
+    #       → 인게임: 마이크 + OUTS 영역 + 포수 리드 버튼을 계속 탭
+    #       → (종료 흐름은 사용자 추가 흐름 받은 뒤 정의)
+    ("leaguemode", "entry",              True, "플레이볼 메뉴 상단의 '리그 모드' 배너 (리그 메이저 N / vs ROUND M/144) — 탭하면 리그 대시보드로"),
+    ("leaguemode", "play_ball_button",   True, "리그 메인 화면 가운데의 'PLAY BALL' 흰 버튼"),
+    ("leaguemode", "select_type_header", True, "'/ SELECT TYPE / 플레이 방식 설정' 헤더 글자"),
+    ("leaguemode", "full_play_card",     True, "SELECT TYPE 화면 우측의 '풀 플레이 / FULL PLAY' 카드 — 좌표+가드=select_type_header 추천"),
+    ("leaguemode", "start_button",       True, "SELECT TYPE 화면 하단의 'START' 보라 버튼"),
+    ("leaguemode", "mic_button",         True, "게임 화면 좌하단의 마이크 아이콘 — 해설 스킵용, 게임 시작부터 끝까지 계속 탭"),
+    ("leaguemode", "outs_area",          True, "게임 화면 상단의 '0 OUTS' (또는 N OUTS) 영역 — 게임 진행 중 계속 탭"),
+    ("leaguemode", "catcher_lead",       True, "게임 화면 우하단의 '포수 리드' 버튼 — 자동 투구 트리거, 계속 탭"),
 ]
 
 BUCKET_LABELS = {
