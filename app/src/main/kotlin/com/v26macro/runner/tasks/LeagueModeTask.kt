@@ -141,8 +141,12 @@ class LeagueModeTask : Task {
                     GestureService.tap(it.centerX.toFloat(), it.centerY.toFloat()); taps++
                 }
             } else {
-                // 시뮬 모드 - 마이크만 가끔
+                // 시뮬 모드 - 개입 불가 상태지만 마이크 / OUTS 영역은 계속 탭해서
+                // 해설 팝업이나 진행 애니메이션이 빨리 넘어가도록 한다.
                 find(bucket, "mic_button")?.let {
+                    GestureService.tap(it.centerX.toFloat(), it.centerY.toFloat())
+                }
+                find(bucket, "outs_area")?.let {
                     GestureService.tap(it.centerX.toFloat(), it.centerY.toFloat())
                 }
             }
