@@ -127,6 +127,9 @@ TEMPLATES = [
     # 선발이 흔들릴 때 뜨는 코치 조언 다이얼로그
     ("leaguemode", "coach_advice",       True, "'코치의 조언' 헤더 — 선발 교체 추천 다이얼로그 식별"),
     ("leaguemode", "coach_change_yes",   True, "코치 조언 다이얼로그의 '교체' 파란 버튼 (추천 따르기)"),
+    # 게임 종료 후: 결과 → MVP/보상 → 다음매치 → '한 번 더 하기' 로 다음 게임
+    ("leaguemode", "result_next",        True, "경기 결과 / MVP 보상 화면의 '다음' (또는 'SKIP >') 파란 버튼 — 두 화면 위치 약간 달라도 글자 위주로 크롭하면 다중 스케일로 매칭"),
+    ("leaguemode", "play_again",         True, "다음 매치 화면의 '한 번 더 하기' 흰 버튼 (좌측) — 이게 보이면 한 게임 끝나고 다음 매치 대기 중인 상태"),
 ]
 
 BUCKET_LABELS = {

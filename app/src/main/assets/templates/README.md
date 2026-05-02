@@ -98,7 +98,9 @@ templates/
     ├── switch_to_sim.png            # 일시정지 메뉴의 '시뮬레이션 전환' 카드
     ├── sim_confirm.png              # '시뮬레이션 전환?' 다이얼로그의 '확인' 파란 버튼
     ├── coach_advice.png             # '코치의 조언' 헤더 — 선발 교체 추천 다이얼로그
-    └── coach_change_yes.png         # 코치 조언의 '교체' 파란 버튼
+    ├── coach_change_yes.png         # 코치 조언의 '교체' 파란 버튼
+    ├── result_next.png              # 경기 결과 / MVP 보상 화면의 '다음' (또는 'SKIP >') 파란 버튼
+    └── play_again.png               # 다음 매치 화면의 '한 번 더 하기' 흰 버튼 (다음 게임 시작 트리거)
 ```
 
 ## 캡처 가이드
