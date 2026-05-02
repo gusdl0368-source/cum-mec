@@ -11,19 +11,24 @@ import kotlinx.coroutines.delay
  *
  * 흐름:
  *   1. (메인) 플레이볼 → 홈런레이스 탭
- *   2. 플레이 버튼
- *   3. 결과창에 도달할 때까지 좌상단 '최고스코어' 영역을 계속 탭. 도중에 공을 친 경우
+ *   2. (옵션) 시즌 초기화 직후엔 'NEW SEASON' 안내가 뜸 → 한 번 탭해 닫음
+ *   3. (옵션) 출전선수 미등록 상태('+' 버튼 보임) → 정렬 드롭다운 → '풀스윙'
+ *      → 좌상단 첫 선수 탭 → '확인'
+ *   4. 플레이 버튼
+ *   5. 결과창에 도달할 때까지 좌상단 '최고스코어' 영역을 계속 탭. 도중에 공을 친 경우
  *      타구 경로 화면이 뜨면 '확인' 으로 넘김.
- *   4. 결과창에서 더 돌릴지에 따라 '재도전' 또는 '확인'.
- *   5. 메인으로 BACK.
+ *   6. 결과창에서 더 돌릴지에 따라 '재도전' 또는 '확인'.
+ *   7. 메인으로 BACK.
  *
  * 같은 '확인' 버튼이 두 화면(타구경로/결과창)에서 똑같이 나타나기 때문에 템플릿만으로는
  * 구별 불가. 대신 컨텍스트로 구별:
- *   - 화면에 retry(재도전) 가 보인다 → 결과창 (공 친 경우/못 친 경우 모두 retry 있음)
+ *   - 화면에 retry(재도전) 가 보인다 → 결과창
  *   - confirm 만 보이고 retry 가 없다 → 타구 경로 화면
  *   - 둘 다 안 보인다 → 게임플레이 중 (좌상단 탭)
  *
- * 필요한 템플릿: homerunrace/entry, play, top_left_target, confirm, retry
+ * 필수 템플릿: homerunrace/entry, play, top_left_target, confirm, retry
+ * 선택 템플릿(시즌 초기화 시에만 필요): season_intro, register_plus, sort_menu,
+ *           sort_fullswing, first_player, register_confirm
  */
 class HomeRunRaceTask(
     private val maxRounds: Int = 8,         // 사용자가 UI 에서 정한 라운드 수 (0 이면 MacroRunner 가 스킵)
@@ -39,6 +44,20 @@ class HomeRunRaceTask(
         // 플레이볼 → 홈런레이스
         if (!enterPlayballAndOpen(bucket, "entry")) {
             return missingAssets("home/playball or $bucket/entry")
+        }
+
+        // 시즌 초기화 직후엔 'NEW SEASON' 안내 화면이 뜸. 보이면 한 번 탭해서 닫음.
+        val intro = find(bucket, "season_intro")
+        if (intro != null) {
+            progress("새 시즌 안내 닫기")
+            tap(intro.centerX, intro.centerY)
+            humanDelay(900L, 300L)
+        }
+
+        // 출전선수 미등록 상태 ('+' 버튼이 보임) → 풀스윙 1번 선수 자동 등록
+        if (find(bucket, "register_plus") != null) {
+            progress("출전선수 등록 (풀스윙 1번 선수)")
+            registerFirstFullSwingPlayer(this)
         }
 
         var played = 0
@@ -82,6 +101,49 @@ class HomeRunRaceTask(
         returnToMainMenu()
         progress("홈런레이스 완료: ${played}회")
         return TaskResult.Success
+    }
+
+    /**
+     * 시즌 초기화 직후 출전선수가 비어있을 때만 호출. 정렬 드롭다운에서 '풀스윙'을
+     * 고르고 좌상단 첫 선수 카드를 클릭해 등록.
+     */
+    private suspend fun registerFirstFullSwingPlayer(ctx: TaskContext): Boolean = with(ctx) {
+        // 1) + 버튼 → 선수 등록 화면 진입
+        if (!tapTemplate(bucket, "register_plus", timeoutMs = 4000L)) {
+            progress("선수 등록: + 버튼 못 찾음")
+            return@with false
+        }
+        humanDelay(900L, 300L)
+
+        // 2) 정렬 드롭다운 (현재 '파워+정확' 표시)
+        if (!tapTemplate(bucket, "sort_menu", timeoutMs = 4000L)) {
+            progress("선수 등록: 정렬 드롭다운 못 찾음")
+            return@with false
+        }
+        humanDelay(700L, 200L)
+
+        // 3) 펼친 메뉴에서 '풀스윙' 선택
+        if (!tapTemplate(bucket, "sort_fullswing", timeoutMs = 4000L)) {
+            progress("선수 등록: 풀스윙 옵션 못 찾음")
+            return@with false
+        }
+        humanDelay(800L, 200L)
+
+        // 4) 좌상단 첫 선수 탭 (좌표 권장)
+        if (!tapTemplate(bucket, "first_player", timeoutMs = 3000L)) {
+            progress("선수 등록: 좌상단 선수 못 찾음")
+            return@with false
+        }
+        humanDelay(600L, 200L)
+
+        // 5) '확인' 으로 등록 완료
+        if (!tapTemplate(bucket, "register_confirm", timeoutMs = 4000L)) {
+            progress("선수 등록: 확인 버튼 못 찾음")
+            return@with false
+        }
+        humanDelay(900L, 250L)
+        progress("선수 등록 완료")
+        return@with true
     }
 
     /**

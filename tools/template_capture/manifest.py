@@ -47,14 +47,21 @@ TEMPLATES = [
     ("pointshop", "exit",             False, "상점 종료 X 버튼 (없으면 BACK 키로 처리)"),
 
     # ── 홈런레이스 ──
-    # 흐름: 플레이볼 → 홈런레이스 탭 → '플레이' → 결과창 까지 좌상단 '최고스코어' 계속 탭
+    # 흐름: 플레이볼 → 홈런레이스 탭 → (시즌 첫날엔 NEW SEASON 안내 한 번 탭)
+    #       → (선수 미등록 시 출전선수 '+' → 정렬 드롭다운 → '풀스윙' → 좌상단 선수 → 확인)
+    #       → '플레이' → 결과창 까지 좌상단 '최고스코어' 계속 탭
     #       → (공 친 경우) 타구 경로 화면 '확인' 자동 스킵 → 결과창 → 재도전/확인 → BACK
     #
     # 타구 경로 화면의 '확인' 과 결과창의 '확인' 은 똑같이 생겼다. 매크로는 retry(재도전)
     # 의 존재 유무로 두 화면을 구별한다 (재도전 보이면 결과창, 안 보이면 타구 경로).
-    # 따라서 confirm 템플릿은 한 장만 캡처하면 되고, retry 가 핵심 식별자라 필수.
     ("homerunrace", "entry",           True,  "플레이볼 안의 '홈런레이스' 탭"),
-    ("homerunrace", "play",            True,  "홈런레이스 플레이/입장 버튼"),
+    ("homerunrace", "season_intro",    False, "새 시즌 시작 안내 화면 — 'NEW SEASON' / '새로운 시즌의 시작' 글자. 시즌 초기화 직후만 뜸. 보이면 한 번 탭해 닫음"),
+    ("homerunrace", "register_plus",   False, "출전선수 자리의 큰 '+' 버튼 — 선수 미등록 상태에서만 보임 (선수 등록 흐름 트리거)"),
+    ("homerunrace", "sort_menu",       False, "선수 등록 화면의 정렬 드롭다운 (기본 표시 '파워+정확')"),
+    ("homerunrace", "sort_fullswing",  False, "정렬 드롭다운에서 '풀스윙' 옵션"),
+    ("homerunrace", "first_player",    False, "정렬 후 좌상단 첫 번째 선수 카드 — 위치 고정이라 좌표 저장 + 가드=sort_menu 추천"),
+    ("homerunrace", "register_confirm",False, "선수 등록 화면 하단의 '확인' 버튼 (보라색 큰 버튼)"),
+    ("homerunrace", "play",            True,  "홈런레이스 플레이/입장 버튼 (PLAY HOMERUN RACE)"),
     ("homerunrace", "top_left_target", True,  "스윙용으로 계속 탭할 좌상단의 '최고스코어' 글씨"),
     ("homerunrace", "retry",           True,  "결과창의 '재도전' 버튼 — 결과창 식별용 (타구 경로 화면엔 없음)"),
     ("homerunrace", "confirm",         True,  "확인 버튼 — 타구 경로(스킵)와 결과창(종료) 양쪽에서 같은 모양으로 사용. 한 장만 캡처"),

@@ -43,11 +43,16 @@ templates/
 │
 ├── homerunrace/                     # 홈런레이스
 │   ├── entry.png                    # 플레이볼 안의 '홈런레이스' 탭
-│   ├── play.png                     # 플레이/입장 버튼
+│   ├── play.png                     # 플레이/입장 버튼 (PLAY HOMERUN RACE)
 │   ├── top_left_target.png          # 좌상단 '최고스코어' 글씨 (스윙용 탭 위치)
 │   ├── retry.png                    # 결과창의 '재도전' - 결과창임을 구별하는 핵심 식별자
-│   └── confirm.png                  # '확인' - 타구 경로 스킵과 결과창 종료 양쪽에서 같은 모양으로 사용
-│   # 두 화면의 '확인' 은 시각적으로 동일하므로 한 장만 캡처. 매크로가 retry 유무로 어느 화면인지 판단함
+│   ├── confirm.png                  # '확인' - 타구 경로 스킵과 결과창 종료 양쪽 공용
+│   ├── season_intro.png             # (선택) 'NEW SEASON' 안내 화면 - 시즌 초기화 직후만 뜸
+│   ├── register_plus.png            # (선택) 출전선수 자리의 '+' - 선수 미등록일 때만 보임
+│   ├── sort_menu.png                # (선택) 선수 등록 화면의 정렬 드롭다운 ('파워+정확')
+│   ├── sort_fullswing.png           # (선택) 드롭다운에서 '풀스윙' 옵션
+│   ├── first_player.png             # (선택) 좌상단 첫 선수 카드 - 좌표 + 가드=sort_menu 추천
+│   └── register_confirm.png         # (선택) 선수 등록 화면의 '확인' 보라 버튼
 │
 ├── specialmatch/                    # 스페셜매치 - 잠재력 60오버롤
 │   ├── entry.png                    # 플레이볼 안의 '스페셜매치' 탭
