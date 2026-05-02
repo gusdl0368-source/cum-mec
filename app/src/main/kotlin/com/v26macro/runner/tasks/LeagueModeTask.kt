@@ -102,8 +102,11 @@ class LeagueModeTask : Task {
         var inSimulation = false
 
         while (System.currentTimeMillis() < deadline) {
-            // 게임 종료 신호 체크
-            if (find(bucket, "result_next") != null || find(bucket, "play_again") != null) {
+            // 게임 종료 신호 체크 — 결과 화면 또는 MVP 화면 또는 다음매치 화면
+            if (find(bucket, "result_next") != null
+                || find(bucket, "mvp_next") != null
+                || find(bucket, "play_again") != null
+            ) {
                 progress("리그모드: 게임 종료 화면 감지")
                 return@with
             }
@@ -164,8 +167,13 @@ class LeagueModeTask : Task {
                 humanDelay(2500L, 500L)  // 다음 게임 로딩 여유
                 return@with true
             }
-            // 결과 / MVP 화면 → 다음 탭
-            if (tapTemplate(bucket, "result_next", timeoutMs = 1500L)) {
+            // 경기 결과 화면 (WIN/LOSE) → 다음
+            if (tapTemplate(bucket, "result_next", timeoutMs = 1200L)) {
+                humanDelay(900L, 250L)
+                continue
+            }
+            // MVP / 보상 화면 → 다음 (또는 SKIP)
+            if (tapTemplate(bucket, "mvp_next", timeoutMs = 1200L)) {
                 humanDelay(900L, 250L)
                 continue
             }

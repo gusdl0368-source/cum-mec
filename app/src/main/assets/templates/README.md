@@ -84,7 +84,24 @@ templates/
 │   ├── refresh_done.png             # (선택) '금일 갱신 완료' 상태 — 보이면 매크로 종료
 │   └── incomplete_confirm.png       # (선택, 드물게 뜸) '경기 안 한 상대' 팝업의 '확인'
 │
-└── leaguemode/                      # (예정 — 사용자 흐름 받은 뒤 정의)
+└── leaguemode/                      # 리그모드 (자동 풀 플레이)
+    ├── entry.png                    # 플레이볼 메뉴 상단의 '리그 모드' 배너
+    ├── play_ball_button.png         # 리그 메인의 'PLAY BALL' 흰 버튼
+    ├── select_type_header.png       # '/ SELECT TYPE / 플레이 방식 설정' 헤더
+    ├── full_play_card.png           # 우측의 '풀 플레이' 카드 — 좌표+가드=select_type_header
+    ├── start_button.png             # SELECT TYPE 하단 'START' 보라 버튼
+    ├── mic_button.png               # 게임 좌하단의 마이크 — 해설 스킵용 (계속 탭)
+    ├── outs_area.png                # 게임 상단 'N OUTS' 영역 (계속 탭)
+    ├── catcher_lead.png             # 우하단 '포수 리드' 버튼 (자동 투구, 계속 탭)
+    ├── live_play_full.png           # 좌상단 라이브 플레이 5/5 체크 상태 (시뮬 전환 트리거)
+    ├── pause_button.png             # 우상단 일시정지 (||) 버튼
+    ├── switch_to_sim.png            # 일시정지 메뉴의 '시뮬레이션 전환' 카드
+    ├── sim_confirm.png              # '시뮬레이션 전환?' 다이얼로그의 '확인' 파란 버튼
+    ├── coach_advice.png             # '코치의 조언' 헤더 — 선발 교체 추천 다이얼로그
+    ├── coach_change_yes.png         # 코치 조언의 '교체' 파란 버튼
+    ├── result_next.png              # 경기 결과 화면(WIN/LOSE)의 '다음' 파란 버튼 (경기 기록 / 타임 라인 옆)
+    ├── mvp_next.png                 # TODAY'S MVP / 반복과제 보상 화면의 '다음' (또는 'SKIP >') 큰 파란 버튼
+    └── play_again.png               # 다음 매치 화면의 '한 번 더 하기' 흰 버튼 (다음 게임 시작 트리거)
 ```
 
 ## 캡처 가이드
