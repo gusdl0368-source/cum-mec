@@ -83,7 +83,12 @@ class MacroRunner(private val appContext: Context) {
                 if (cfg.pointShopEnabled) add(PointShopTask())
                 if (cfg.homerunCount > 0) add(HomeRunRaceTask(maxRounds = cfg.homerunCount))
                 if (cfg.specialMatchCount > 0) add(SpecialMatchTask(maxRounds = cfg.specialMatchCount))
-                if (cfg.rankingEnabled) add(RankingChallengeTask())
+                if (cfg.rankingEnabled) add(
+                    RankingChallengeTask(
+                        refreshLevel = cfg.rankingRefreshLevel,
+                        leaveLastSet = cfg.rankingLeaveLastSet,
+                    )
+                )
                 if (cfg.leagueEnabled) add(LeagueModeTask())
             }
             val results = mutableMapOf<TaskKind, TaskResult>()

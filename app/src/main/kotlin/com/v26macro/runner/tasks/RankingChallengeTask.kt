@@ -4,7 +4,6 @@ import com.v26macro.runner.TaskContext
 import com.v26macro.runner.TaskKind
 import com.v26macro.runner.TaskResult
 import com.v26macro.util.humanDelay
-import java.util.Calendar
 
 /**
  * 랭킹챌린지.
@@ -13,16 +12,20 @@ import java.util.Calendar
  * 새 5경기 가져옴. 무료 갱신 3 + 포인트 6 + 스타 6 = 갱신 15회 (V26 가 같은 버튼 라벨만
  * 바꿈). 무료는 즉시 갱신, 포인트/스타는 추가 확인 다이얼로그 한 번 더 필요.
  *
- * 요일별 횟수 (다음날 매칭이 어제 점수 기준이라 마지막 5판은 일부러 안 돌리는 전략):
- *   - 월요일: 17세트(85경기) — 일요일에 남긴 갱신권 + 오늘 풀 소진
- *   - 그 외:  15세트(75경기) — 마지막 1세트(5경기) 의도적 미플레이
+ * 사용자 설정 (UI 에서 조절):
+ *   - refreshLevel: 0=무료만(4세트) / 1=포인트까지(10세트) / 2=스타까지(16세트)
+ *   - leaveLastSet: 마지막 1세트(5경기) 남기고 종료할지 여부
+ *     (남기면 다음날 매칭 점수 낮춰서 쉬운 상대 → 어제 남은 5판부터 시작)
  *
  * 필요한 템플릿:
- *   rankingchallenge/{entry, continuous_play, proceed, result_indicator, next,
- *                     summary_done, summary_confirm, refresh_button}
+ *   rankingchallenge/{entry, play_ball, continuous_play, proceed, result_indicator,
+ *                     next, summary_done, summary_confirm, refresh_button}
  *   (선택) refresh_paid_confirm, refresh_done, incomplete_confirm
  */
-class RankingChallengeTask : Task {
+class RankingChallengeTask(
+    private val refreshLevel: Int = 1,        // 0=free, 1=point, 2=star
+    private val leaveLastSet: Boolean = true,
+) : Task {
     override val kind = TaskKind.RankingChallenge
     private val bucket = kind.bucket
 
@@ -37,11 +40,16 @@ class RankingChallengeTask : Task {
         }
         humanDelay(900L, 200L)
 
-        // 월요일이면 풀로 (어제 남긴 5판 + 오늘 풀 = 85경기 = 17세트)
-        // 그 외엔 마지막 1세트 남기고 종료 (= 15세트)
-        val isMonday = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY
-        val maxSets = if (isMonday) 17 else 15
-        progress("월요일=${isMonday}, 목표 ${maxSets}세트")
+        // refreshLevel 에 따라 가능한 세트 수 결정. leaveLastSet 이면 마지막 1세트 남김.
+        val baseMaxSets = when (refreshLevel) {
+            0 -> 4    // 1 + 3 free
+            1 -> 10   // 1 + 3 free + 6 point
+            else -> 16  // 1 + 3 free + 6 point + 6 star
+        }
+        val maxSets = if (leaveLastSet) (baseMaxSets - 1).coerceAtLeast(1) else baseMaxSets
+        val levelLabel = when (refreshLevel) { 0 -> "무료만"; 1 -> "포인트까지"; else -> "스타까지" }
+        val leaveLabel = if (leaveLastSet) "마지막5판 남김" else "전부 진행"
+        progress("랭킹챌린지: ${levelLabel}, ${leaveLabel}, 목표 ${maxSets}세트")
 
         var totalMatches = 0
         var setsPlayed = 0
@@ -120,8 +128,7 @@ class RankingChallengeTask : Task {
         }
 
         returnToMainMenu()
-        val mode = if (isMonday) "월요일 풀" else "마지막5판 보존"
-        progress("랭킹챌린지 완료: ${setsPlayed}세트 / ${totalMatches}경기 ($mode)")
+        progress("랭킹챌린지 완료: ${setsPlayed}세트 / ${totalMatches}경기 ($levelLabel, $leaveLabel)")
         return TaskResult.Success
     }
 

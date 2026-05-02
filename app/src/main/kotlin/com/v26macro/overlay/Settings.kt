@@ -20,6 +20,10 @@ data class MacroConfig(
     val homerunCount: Int = 8,        // 0~8, 0이면 스킵
     val specialMatchCount: Int = 3,   // 0~5, 0이면 스킵
     val rankingEnabled: Boolean = false,
+    /** 0=무료만(4세트), 1=포인트까지(10세트), 2=스타까지(16세트) */
+    val rankingRefreshLevel: Int = 1,
+    /** ON이면 마지막 1세트(5경기) 남김 — 다음날 매칭 점수 낮추기용 */
+    val rankingLeaveLastSet: Boolean = true,
     val leagueEnabled: Boolean = false,
 )
 
@@ -29,10 +33,15 @@ object MacroSettings {
     private val HOMERUN_COUNT = intPreferencesKey("homerun_count")
     private val SPECIALMATCH_COUNT = intPreferencesKey("specialmatch_count")
     private val RANKING_ENABLED = booleanPreferencesKey("ranking_enabled")
+    private val RANKING_REFRESH_LEVEL = intPreferencesKey("ranking_refresh_level")
+    private val RANKING_LEAVE_LAST = booleanPreferencesKey("ranking_leave_last")
     private val LEAGUE_ENABLED = booleanPreferencesKey("league_enabled")
 
     const val HOMERUN_MAX = 8
     const val SPECIALMATCH_MAX = 5
+    const val RANKING_LEVEL_FREE = 0
+    const val RANKING_LEVEL_POINT = 1
+    const val RANKING_LEVEL_STAR = 2
 
     fun config(ctx: Context): Flow<MacroConfig> = ctx.dataStore.data.map { p ->
         MacroConfig(
@@ -41,6 +50,8 @@ object MacroSettings {
             homerunCount = (p[HOMERUN_COUNT] ?: HOMERUN_MAX).coerceIn(0, HOMERUN_MAX),
             specialMatchCount = (p[SPECIALMATCH_COUNT] ?: 3).coerceIn(0, SPECIALMATCH_MAX),
             rankingEnabled = p[RANKING_ENABLED] ?: false,
+            rankingRefreshLevel = (p[RANKING_REFRESH_LEVEL] ?: RANKING_LEVEL_POINT).coerceIn(0, 2),
+            rankingLeaveLastSet = p[RANKING_LEAVE_LAST] ?: true,
             leagueEnabled = p[LEAGUE_ENABLED] ?: false,
         )
     }
@@ -56,6 +67,8 @@ object MacroSettings {
             p[HOMERUN_COUNT] = next.homerunCount.coerceIn(0, HOMERUN_MAX)
             p[SPECIALMATCH_COUNT] = next.specialMatchCount.coerceIn(0, SPECIALMATCH_MAX)
             p[RANKING_ENABLED] = next.rankingEnabled
+            p[RANKING_REFRESH_LEVEL] = next.rankingRefreshLevel.coerceIn(0, 2)
+            p[RANKING_LEAVE_LAST] = next.rankingLeaveLastSet
             p[LEAGUE_ENABLED] = next.leagueEnabled
         }
     }

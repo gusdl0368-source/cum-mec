@@ -14,6 +14,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,6 +40,7 @@ import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.PauseCircle
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SportsBaseball
 import androidx.compose.material.icons.filled.Stars
 import androidx.compose.material.icons.filled.Storefront
@@ -251,11 +253,26 @@ private fun HomeScreen(
 
         ToggleRow(
             icon = Icons.Filled.Leaderboard,
-            label = "랭킹챌린지 (베타)",
-            subtitle = "흐름 정의 전이라 실패할 수 있음",
+            label = "랭킹챌린지",
+            subtitle = "5경기 × 다세트 자동 + 갱신",
             checked = cfg.rankingEnabled,
             onChecked = { v -> scope.launch { MacroSettings.update(ctx) { it.copy(rankingEnabled = v) } } },
         )
+        if (cfg.rankingEnabled) {
+            SegmentedRow(
+                label = "갱신 사용 한도",
+                options = listOf("무료만", "포인트까지", "스타까지"),
+                selected = cfg.rankingRefreshLevel,
+                onSelect = { v -> scope.launch { MacroSettings.update(ctx) { it.copy(rankingRefreshLevel = v) } } },
+            )
+            ToggleRow(
+                icon = Icons.Filled.SkipNext,
+                label = "마지막 5판 남기기",
+                subtitle = "내일 매칭 점수 낮춰서 쉬운 상대 받기",
+                checked = cfg.rankingLeaveLastSet,
+                onChecked = { v -> scope.launch { MacroSettings.update(ctx) { it.copy(rankingLeaveLastSet = v) } } },
+            )
+        }
 
         ToggleRow(
             icon = Icons.Filled.Groups,
@@ -458,6 +475,65 @@ private fun StepperButton(label: String, enabled: Boolean, onClick: () -> Unit) 
             ),
     ) {
         Text(label, color = if (enabled) Accent else Muted, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+    }
+}
+
+@Composable
+private fun SegmentedRow(
+    label: String,
+    options: List<String>,
+    selected: Int,
+    onSelect: (Int) -> Unit,
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        shape = RoundedCornerShape(14.dp),
+    ) {
+        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+            Text(
+                label,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Spacer(Modifier.height(8.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                options.forEachIndexed { i, opt ->
+                    SegmentChip(
+                        text = opt,
+                        selected = i == selected,
+                        modifier = Modifier.weight(1f),
+                    ) { onSelect(i) }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SegmentChip(
+    text: String,
+    selected: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(
+                if (selected) Accent else MaterialTheme.colorScheme.surfaceVariant
+            )
+            .clickable(onClick = onClick)
+            .padding(vertical = 8.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text,
+            color = if (selected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 12.sp,
+        )
     }
 }
 
