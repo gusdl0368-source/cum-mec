@@ -132,7 +132,7 @@ class MacroRunner(private val appContext: Context) {
                     if (!ctx.isOnMainMenu()) {
                         Logger.w("task ${task.kind} 후 메인 인식 실패 - 복귀 시도")
                         _state.value = RunnerState.Running(task.kind, "메인 복귀 중")
-                        val recovered = ctx.returnToMainMenu(maxBack = 6)
+                        val recovered = ctx.returnToMainMenu(maxBack = 10)
                         if (!recovered) {
                             Logger.w("메인 복귀 실패 - 다음 task 진행 (실패 가능)")
                         }

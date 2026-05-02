@@ -81,14 +81,25 @@ object LaunchGame {
             val elapsed = (System.currentTimeMillis() - startMs) / 1000
 
             if (isOnMainMenu()) {
-                Logger.i("LaunchGame: home/playball 매칭 (${elapsed}초)")
+                Logger.i("LaunchGame: home/playball 매칭 (${elapsed}초) - 팝업 정착 대기")
                 arrived = true
+
+                // 메인이 잠깐 보이고 그 위로 팝업이 뜨는 케이스 대응:
+                // 8초 동안 추가로 popup_close 감시. 뜰 때마다 닫고 메인 유지 확인.
+                val settleEnd = System.currentTimeMillis() + 8_000L
+                while (System.currentTimeMillis() < settleEnd) {
+                    if (tapTemplate(BUCKET_HOME, "popup_close", timeoutMs = 600L)) {
+                        onProgress("V26 메인 진입: 후속 팝업 닫음")
+                        humanDelay(700L, 200L)
+                    } else {
+                        kotlinx.coroutines.delay(500L)
+                    }
+                }
                 break
             }
 
             // 게임이 켜졌지만 이벤트 팝업/광고가 플레이볼을 가리고 있는 케이스 —
-            // popup_close (X) 가 보이면 닫고 다시 체크. popup_close 매칭 자체가
-            // "게임이 켜진 상태에 팝업이 떠있다" 는 신호이기도 함.
+            // popup_close (X) 가 보이면 닫고 다시 체크.
             if (tapTemplate(BUCKET_HOME, "popup_close", timeoutMs = 800L)) {
                 onProgress("V26 로딩 중... ${elapsed}s (팝업 닫음)")
                 humanDelay(700L, 200L)

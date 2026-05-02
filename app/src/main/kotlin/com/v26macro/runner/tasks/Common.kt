@@ -59,7 +59,7 @@ suspend fun TaskContext.dismissPopups(maxLoops: Int = 4) {
  *  3. 종료 다이얼로그(메인에서 BACK 한 번 더 눌렀을 때)면 exit_cancel 로 취소 — 메인에 있다는 뜻
  *  4. 그 외엔 BACK 키 한 번
  */
-suspend fun TaskContext.returnToMainMenu(maxBack: Int = 6): Boolean {
+suspend fun TaskContext.returnToMainMenu(maxBack: Int = 10): Boolean {
     repeat(maxBack) {
         if (isOnMainMenu()) return true
         if (tapTemplate(BUCKET_HOME, "popup_close", timeoutMs = 800L)) {
