@@ -1,4 +1,8 @@
 {
+  "home/exit_cancel": {
+    "x": 0.3319,
+    "y": 0.6289
+  },
   "homerunrace/first_player": {
     "guard": "homerunrace/first_player",
     "x": 0.1833,
