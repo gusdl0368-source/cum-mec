@@ -92,7 +92,13 @@ templates/
     ├── start_button.png             # SELECT TYPE 하단 'START' 보라 버튼
     ├── mic_button.png               # 게임 좌하단의 마이크 — 해설 스킵용 (계속 탭)
     ├── outs_area.png                # 게임 상단 'N OUTS' 영역 (계속 탭)
-    └── catcher_lead.png             # 우하단 '포수 리드' 버튼 (자동 투구, 계속 탭)
+    ├── catcher_lead.png             # 우하단 '포수 리드' 버튼 (자동 투구, 계속 탭)
+    ├── live_play_full.png           # 좌상단 라이브 플레이 5/5 체크 상태 (시뮬 전환 트리거)
+    ├── pause_button.png             # 우상단 일시정지 (||) 버튼
+    ├── switch_to_sim.png            # 일시정지 메뉴의 '시뮬레이션 전환' 카드
+    ├── sim_confirm.png              # '시뮬레이션 전환?' 다이얼로그의 '확인' 파란 버튼
+    ├── coach_advice.png             # '코치의 조언' 헤더 — 선발 교체 추천 다이얼로그
+    └── coach_change_yes.png         # 코치 조언의 '교체' 파란 버튼
 ```
 
 ## 캡처 가이드

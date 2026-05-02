@@ -119,6 +119,14 @@ TEMPLATES = [
     ("leaguemode", "mic_button",         True, "게임 화면 좌하단의 마이크 아이콘 — 해설 스킵용, 게임 시작부터 끝까지 계속 탭"),
     ("leaguemode", "outs_area",          True, "게임 화면 상단의 '0 OUTS' (또는 N OUTS) 영역 — 게임 진행 중 계속 탭"),
     ("leaguemode", "catcher_lead",       True, "게임 화면 우하단의 '포수 리드' 버튼 — 자동 투구 트리거, 계속 탭"),
+    # 라이브 플레이 체크박스가 5/5 다 차면 시뮬레이션으로 전환
+    ("leaguemode", "live_play_full",     True, "타격 화면 좌상단의 라이브 플레이 체크박스가 5개 다 채워진 상태 — 시뮬 전환 트리거"),
+    ("leaguemode", "pause_button",       True, "게임 화면 우상단의 일시정지 (||) 버튼"),
+    ("leaguemode", "switch_to_sim",      True, "일시정지 메뉴의 '시뮬레이션 전환' 카드 (하단)"),
+    ("leaguemode", "sim_confirm",        True, "'시뮬레이션 플레이로 전환하시겠습니까?' 다이얼로그의 '확인' 파란 버튼"),
+    # 선발이 흔들릴 때 뜨는 코치 조언 다이얼로그
+    ("leaguemode", "coach_advice",       True, "'코치의 조언' 헤더 — 선발 교체 추천 다이얼로그 식별"),
+    ("leaguemode", "coach_change_yes",   True, "코치 조언 다이얼로그의 '교체' 파란 버튼 (추천 따르기)"),
 ]
 
 BUCKET_LABELS = {
