@@ -82,7 +82,7 @@ class MacroRunner(private val appContext: Context) {
             }
 
             // ── Tasks ──
-            for (task in tasks) {
+            for ((idx, task) in tasks.withIndex()) {
                 _state.value = RunnerState.Running(task.kind, "${task.kind.label} 진행 중")
                 val ctx = TaskContext(library, coords) { msg ->
                     _state.value = RunnerState.Running(task.kind, msg)
@@ -95,6 +95,21 @@ class MacroRunner(private val appContext: Context) {
                 }
                 Logger.i("task ${task.kind} -> $result")
                 results[task.kind] = result
+
+                // 다음 task 가 있으면 메인 화면임을 검증/복구
+                val isLast = idx == tasks.lastIndex
+                if (!isLast) {
+                    if (!ctx.isOnMainMenu()) {
+                        Logger.w("task ${task.kind} 후 메인 인식 실패 - 복귀 시도")
+                        _state.value = RunnerState.Running(task.kind, "메인 복귀 중")
+                        val recovered = ctx.returnToMainMenu(maxBack = 6)
+                        if (!recovered) {
+                            Logger.w("메인 복귀 실패 - 다음 task 진행 (실패 가능)")
+                        }
+                    } else {
+                        Logger.i("task ${task.kind} 후 메인 확인 완료")
+                    }
+                }
             }
             _state.value = RunnerState.Done(results, launchOk = true)
         }

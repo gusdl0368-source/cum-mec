@@ -17,8 +17,9 @@ TEMPLATES = [
     ("home", "popup_close",  False, "일반 팝업의 X 닫기 버튼"),
 
     # ── 후원금 정산 ──
-    ("sponsor", "entry", True, "메인 화면의 후원금 아이콘"),
-    ("sponsor", "claim", True, "정산/수령 버튼"),
+    ("sponsor", "entry",   True, "메인 화면의 후원금 아이콘"),
+    ("sponsor", "claim",   True, "정산/수령 버튼"),
+    ("sponsor", "confirm", True, "보상 수령 후 뜨는 확인 버튼 (한 번 또는 여러 번 뜰 수 있음)"),
 
     # ── 포인트상점 ──
     # 흐름: 메인의 '상점' → 진입 팝업 닫기 → '아이템' 탭 → '포인트상점' 탭

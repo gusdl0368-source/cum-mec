@@ -22,7 +22,8 @@ templates/
 │
 ├── sponsor/                         # 후원금 정산
 │   ├── entry.png                    # 메인의 후원금 아이콘
-│   └── claim.png                    # 정산/수령 버튼
+│   ├── claim.png                    # 정산/수령 버튼
+│   └── confirm.png                  # 보상 수령 후 뜨는 확인 버튼 (반복적으로 누름)
 │
 ├── pointshop/                       # 포인트상점 (3개 상품)
 │   ├── entry.png                    # 메인의 '상점' 버튼
