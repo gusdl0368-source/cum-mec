@@ -152,7 +152,9 @@ class LeagueModeTask : Task {
                     GestureService.tap(it.centerX.toFloat(), it.centerY.toFloat())
                 }
             }
-            delay(450L)
+            // 루프 간격을 짧게(150ms) 둬서 초당 약 6회 폴링 — 마이크/OUTS/포수리드를
+            // 빠르게 연타해 게임 진행을 가속.
+            delay(150L)
         }
         progress("리그모드: 게임 안전 한도 도달 (${taps}회 탭)")
     }
