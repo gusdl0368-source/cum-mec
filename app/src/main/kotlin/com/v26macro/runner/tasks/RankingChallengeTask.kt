@@ -55,16 +55,26 @@ class RankingChallengeTask(
         var setsPlayed = 0
 
         for (set in 1..maxSets) {
-            // 갱신 완료 체크 (2세트부터: 첫 세트는 무조건 진행)
-            if (set > 1 && find(bucket, "refresh_done") != null) {
+            // 갱신 완료 체크
+            if (find(bucket, "refresh_done") != null) {
                 progress("금일 갱신 완료 - 종료")
                 break
             }
 
-            // 핵심 신호: PLAY BALL 이 보이면 = 매치 가능. 안 보이면 갱신 필요/종료.
+            // PLAY BALL 안 보이면 = 5경기가 이미 다 진행된 상태
+            // (사용자가 수동으로 했거나 매크로 이전 실행에서 진행 후 갱신 안 한 케이스)
+            // → 갱신 한 번 눌러서 새 5경기 받고 시작.
             if (find(bucket, "play_ball") == null) {
-                progress("PLAY BALL 안 보임 - 매치 없음 (종료)")
-                break
+                progress("PLAY BALL 없음 - 갱신 후 재시도 (이미 5경기 진행됐을 수 있음)")
+                if (!performRefresh(this)) {
+                    progress("초기 갱신 실패 - 종료")
+                    break
+                }
+                humanDelay(1500L, 300L)
+                if (find(bucket, "play_ball") == null) {
+                    progress("갱신 후에도 PLAY BALL 없음 - 종료")
+                    break
+                }
             }
 
             progress("랭킹챌린지: ${set}번째 5경기 세트")
@@ -105,43 +115,55 @@ class RankingChallengeTask(
                 progress("총 결과 화면 못 봄 - 갱신 시도")
             }
 
-            // 4) 갱신 (다음 세트로 이어짐). 마지막 세트면 갱신 안 누름 = "마지막 5판 남기기" 정책.
+            // 4) 갱신 (다음 세트로 이어짐). 마지막 세트면 갱신 안 누름 = "마지막 5판 남기기".
             val isLastSet = set == maxSets
             if (!isLastSet) {
-                // 4-a) 갱신 누르기 전에 ranking main 화면임을 검증.
-                //      summary_confirm 탭 후 화면 전환 대기. continuous_play 버튼이
-                //      보여야 = 우리는 ranking 메인에 있음 = refresh_button 좌표가 유효함.
-                val onRankingMain = waitForTemplate(
-                    bucket, "continuous_play", timeoutMs = 8000L
-                ) != null
-                if (!onRankingMain) {
-                    progress("갱신 단계: ranking main 못 찾음 (continuous_play 안 보임) - 종료")
+                if (!performRefresh(this)) {
+                    progress("세트 후 갱신 실패 - 종료")
                     break
                 }
-                // 4-b) 갱신 완료 상태면 종료
-                if (find(bucket, "refresh_done") != null) {
-                    progress("금일 갱신 완료 - 종료")
-                    break
-                }
-                // 4-c) 갱신 버튼 탭 (좌표 사용 권장)
-                if (!tapTemplate(bucket, "refresh_button", timeoutMs = 5000L)) {
-                    progress("갱신 버튼 탭 실패 (좌표/PNG 모두 미정의) - 종료")
-                    break
-                }
-                humanDelay(900L, 200L)
-                // 4-d) 포인트/스타 갱신 시 추가 확인 다이얼로그 (무료는 안 뜸).
-                //      좌표+가드=refresh_paid_dialog 추천. 가드 미정의여도 못 찾으면 패스.
-                tapTemplate(bucket, "refresh_paid_confirm", timeoutMs = 1500L)
-                humanDelay(600L, 200L)
-                // 4-e) 드물게 '경기 안한 상대 있음' 팝업
-                tapTemplate(bucket, "incomplete_confirm", timeoutMs = 1200L)
-                humanDelay(500L, 200L)
             }
         }
 
         returnToMainMenu()
         progress("랭킹챌린지 완료: ${setsPlayed}세트 / ${totalMatches}경기 ($levelLabel, $leaveLabel)")
         return TaskResult.Success
+    }
+
+    /**
+     * 갱신 단계: ranking main 검증 → refresh_done 체크 → refresh_button 탭 →
+     * 포인트/스타 다이얼로그 처리 → 잔여 팝업 처리.
+     *
+     * 매크로가 세트 사이에 갱신할 때, 그리고 진입 시 PLAY BALL 안 보일 때(이미 5경기
+     * 끝나있는 케이스) 둘 다 호출됨.
+     */
+    private suspend fun performRefresh(ctx: TaskContext): Boolean = with(ctx) {
+        // ranking main 화면임을 검증 (continuous_play 보일 때까지 대기)
+        val onRankingMain = waitForTemplate(
+            bucket, "continuous_play", timeoutMs = 8000L
+        ) != null
+        if (!onRankingMain) {
+            progress("갱신: ranking main 못 찾음 (continuous_play 안 보임)")
+            return@with false
+        }
+        // 갱신 완료 상태면 false 반환 (호출자가 종료 결정)
+        if (find(bucket, "refresh_done") != null) {
+            progress("갱신: 금일 갱신 완료 표시")
+            return@with false
+        }
+        // 갱신 버튼 탭 (좌표 우선)
+        if (!tapTemplate(bucket, "refresh_button", timeoutMs = 5000L)) {
+            progress("갱신: refresh_button 탭 실패 (좌표/PNG 모두 미정의)")
+            return@with false
+        }
+        humanDelay(900L, 200L)
+        // 포인트/스타 갱신 시 추가 확인 다이얼로그 (무료는 안 뜸). 안 떠도 무해.
+        tapTemplate(bucket, "refresh_paid_confirm", timeoutMs = 1500L)
+        humanDelay(600L, 200L)
+        // 드물게 '경기 안한 상대 있음' 팝업
+        tapTemplate(bucket, "incomplete_confirm", timeoutMs = 1200L)
+        humanDelay(500L, 200L)
+        return@with true
     }
 
     /**
