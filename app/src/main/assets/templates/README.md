@@ -49,6 +49,8 @@ templates/
 │   ├── confirm.png                  # '확인' - 타구 경로 스킵과 결과창 종료 양쪽 공용
 │   ├── season_intro.png             # (선택) 'NEW SEASON' 안내 화면 - 시즌 초기화 직후만 뜸
 │   ├── register_plus.png            # (선택) 출전선수 자리의 '+' - 선수 미등록일 때만 보임
+│   ├── no_player_dialog.png         # (선택) '출전할 선수를 먼저 등록해야 합니다' 알림 - register_plus 못 잡았을 때 안전망
+│   ├── no_player_confirm.png        # (선택) 위 알림의 '확인' 파란 버튼
 │   ├── sort_menu.png                # (선택) 선수 등록 화면의 정렬 드롭다운 ('파워+정확')
 │   ├── sort_fullswing.png           # (선택) 드롭다운에서 '풀스윙' 옵션
 │   ├── first_player.png             # (선택) 좌상단 첫 선수 카드 - 좌표 + 가드=sort_menu 추천

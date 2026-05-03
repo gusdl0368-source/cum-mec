@@ -77,6 +77,21 @@ class HomeRunRaceTask(
                 }
             }
 
+            // 안전망: 플레이 눌렀는데 '출전할 선수를 먼저 등록해야 합니다' 다이얼로그가
+            // 뜨면 → 확인 닫고 → 등록 → 다시 플레이.
+            // (사전 register_plus 검사가 실패한 경우 대비)
+            if (find(bucket, "no_player_dialog") != null) {
+                progress("출전선수 미등록 다이얼로그 → 등록 후 재시도")
+                tapTemplate(bucket, "no_player_confirm", timeoutMs = 3000L)
+                humanDelay(900L, 300L)
+                registerFirstFullSwingPlayer(this)
+                if (!tapTemplate(bucket, "play", timeoutMs = 5000L)) {
+                    progress("등록 후 플레이 재시도 실패 - 종료")
+                    break
+                }
+                humanDelay(900L, 300L)
+            }
+
             // 게임 진행: confirm(또는 ball_path_confirm) 보일 때까지 좌상단 탭 반복
             val ok = playOneRound(this, resultTimeoutMs)
             if (!ok) {

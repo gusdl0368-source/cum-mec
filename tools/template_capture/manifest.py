@@ -58,6 +58,8 @@ TEMPLATES = [
     ("homerunrace", "entry",           True,  "플레이볼 안의 '홈런레이스' 탭"),
     ("homerunrace", "season_intro",    False, "새 시즌 시작 안내 화면 — 'NEW SEASON' / '새로운 시즌의 시작' 글자. 시즌 초기화 직후만 뜸. 보이면 한 번 탭해 닫음"),
     ("homerunrace", "register_plus",   False, "출전선수 자리의 큰 '+' 버튼 — 선수 미등록 상태에서만 보임 (선수 등록 흐름 트리거)"),
+    ("homerunrace", "no_player_dialog",False, "'출전할 선수를 먼저 등록해야 합니다' 알림 다이얼로그 식별 — register_plus 못 잡았을 때 안전망"),
+    ("homerunrace", "no_player_confirm",False, "위 알림 다이얼로그의 '확인' 파란 버튼"),
     ("homerunrace", "sort_menu",       False, "선수 등록 화면의 정렬 드롭다운 (기본 표시 '파워+정확')"),
     ("homerunrace", "sort_fullswing",  False, "정렬 드롭다운에서 '풀스윙' 옵션"),
     ("homerunrace", "first_player",    False, "정렬 후 좌상단 첫 번째 선수 카드 — 위치 고정이라 좌표 저장 + 가드=sort_menu 추천"),
