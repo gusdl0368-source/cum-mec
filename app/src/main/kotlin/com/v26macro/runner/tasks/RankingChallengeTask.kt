@@ -108,20 +108,32 @@ class RankingChallengeTask(
             // 4) 갱신 (다음 세트로 이어짐). 마지막 세트면 갱신 안 누름 = "마지막 5판 남기기" 정책.
             val isLastSet = set == maxSets
             if (!isLastSet) {
+                // 4-a) 갱신 누르기 전에 ranking main 화면임을 검증.
+                //      summary_confirm 탭 후 화면 전환 대기. continuous_play 버튼이
+                //      보여야 = 우리는 ranking 메인에 있음 = refresh_button 좌표가 유효함.
+                val onRankingMain = waitForTemplate(
+                    bucket, "continuous_play", timeoutMs = 8000L
+                ) != null
+                if (!onRankingMain) {
+                    progress("갱신 단계: ranking main 못 찾음 (continuous_play 안 보임) - 종료")
+                    break
+                }
+                // 4-b) 갱신 완료 상태면 종료
                 if (find(bucket, "refresh_done") != null) {
                     progress("금일 갱신 완료 - 종료")
                     break
                 }
+                // 4-c) 갱신 버튼 탭 (좌표 사용 권장)
                 if (!tapTemplate(bucket, "refresh_button", timeoutMs = 5000L)) {
-                    progress("갱신 버튼 못 찾음 - 종료")
+                    progress("갱신 버튼 탭 실패 (좌표/PNG 모두 미정의) - 종료")
                     break
                 }
                 humanDelay(900L, 200L)
-                // 포인트/스타 갱신은 추가 확인 다이얼로그가 한 번 더 뜸 (무료는 안 뜸).
-                // 안 떠도 무해 (tapTemplate 가 1.5초 안에 못 찾으면 그냥 패스).
+                // 4-d) 포인트/스타 갱신 시 추가 확인 다이얼로그 (무료는 안 뜸).
+                //      좌표+가드=refresh_paid_dialog 추천. 가드 미정의여도 못 찾으면 패스.
                 tapTemplate(bucket, "refresh_paid_confirm", timeoutMs = 1500L)
                 humanDelay(600L, 200L)
-                // 드물게 '경기 안한 상대 있음' 팝업
+                // 4-e) 드물게 '경기 안한 상대 있음' 팝업
                 tapTemplate(bucket, "incomplete_confirm", timeoutMs = 1200L)
                 humanDelay(500L, 200L)
             }
