@@ -25,9 +25,13 @@
     "x": 0.4986,
     "y": 0.9547
   },
-  "rankingchallenge/refresh_button": {
-    "x": 0.7778,
-    "y": 0.432
+  "rankingchallenge/incomplete_confirm": {
+    "x": 0.8542,
+    "y": 0.3523
+  },
+  "rankingchallenge/refresh_paid_confirm": {
+    "x": 0.5083,
+    "y": 0.6273
   },
   "specialmatch/gauge_left": {
     "guard": "specialmatch/select_type_header",
