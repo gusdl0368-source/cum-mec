@@ -91,6 +91,8 @@ templates/
 └── leaguemode/                      # 리그모드 (자동 풀 플레이)
     ├── entry.png                    # 플레이볼 메뉴 상단의 '리그 모드' 배너
     ├── play_ball_button.png         # 리그 메인의 'PLAY BALL' 흰 버튼
+    ├── resume_play_dialog.png       # (선택) '리섬 플레이' / '이어하기' 다이얼로그 헤더 — 경기 도중 나갔다 다시 들어왔을 때만 뜸
+    ├── resume_play_yes.png          # (선택) 위 다이얼로그의 '이어하기' / '예' 버튼 — 진행 중이던 경기 재개
     ├── select_type_header.png       # '/ SELECT TYPE / 플레이 방식 설정' 헤더
     ├── full_play_card.png           # 우측의 '풀 플레이' 카드 — 좌표+가드=select_type_header
     ├── start_button.png             # SELECT TYPE 하단 'START' 보라 버튼

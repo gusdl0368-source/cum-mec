@@ -119,6 +119,9 @@ TEMPLATES = [
     #       → (종료 흐름은 사용자 추가 흐름 받은 뒤 정의)
     ("leaguemode", "entry",              True, "플레이볼 메뉴 상단의 '리그 모드' 배너 (리그 메이저 N / vs ROUND M/144) — 탭하면 리그 대시보드로"),
     ("leaguemode", "play_ball_button",   True, "리그 메인 화면 가운데의 'PLAY BALL' 흰 버튼"),
+    # 경기 중 강제 종료 후 다시 들어오면 'PLAY BALL' 대신 '리섬 플레이' (이어하기) 다이얼로그가 뜸
+    ("leaguemode", "resume_play_dialog", False, "'리섬 플레이' / '이어하기' 다이얼로그 식별 — 경기 도중 나갔다가 다시 들어왔을 때만 뜸 (헤더 글자 권장)"),
+    ("leaguemode", "resume_play_yes",    False, "'리섬 플레이' 다이얼로그의 '이어하기' / '예' 버튼 — 진행 중이던 경기 그대로 재개"),
     ("leaguemode", "select_type_header", True, "'/ SELECT TYPE / 플레이 방식 설정' 헤더 글자"),
     ("leaguemode", "full_play_card",     True, "SELECT TYPE 화면 우측의 '풀 플레이 / FULL PLAY' 카드 — 좌표+가드=select_type_header 추천"),
     ("leaguemode", "start_button",       True, "SELECT TYPE 화면 하단의 'START' 보라 버튼"),
