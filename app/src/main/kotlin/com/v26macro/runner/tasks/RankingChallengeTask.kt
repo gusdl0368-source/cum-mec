@@ -115,6 +115,9 @@ class RankingChallengeTask(
                 progress("총 결과 화면 못 봄 - 갱신 시도")
             }
 
+            // 3-b) summary 후에 승격 화면이 뜨는 경우가 있어서 한 번 처리
+            dismissPromotionIfPresent(this)
+
             // 4) 갱신 (다음 세트로 이어짐). 마지막 세트면 갱신 안 누름 = "마지막 5판 남기기".
             val isLastSet = set == maxSets
             if (!isLastSet) {
@@ -138,6 +141,9 @@ class RankingChallengeTask(
      * 끝나있는 케이스) 둘 다 호출됨.
      */
     private suspend fun performRefresh(ctx: TaskContext): Boolean = with(ctx) {
+        // 승격 화면이 떠있으면 먼저 dismiss (main_indicator 가려질 수 있음)
+        dismissPromotionIfPresent(this)
+
         // ranking main 화면임을 검증.
         // continuous_play 는 5경기 다 끝나면 어두워져서 PNG 매칭이 불안정.
         // 대신 '챌린지 포인트' 헤더 같은 상태와 무관한 main_indicator 를 사용.
@@ -169,14 +175,28 @@ class RankingChallengeTask(
     }
 
     /**
+     * 승격 화면 처리 — 따로 버튼 없이 화면 어디든 탭하면 넘어감.
+     * 5경기 다 이긴 뒤 등급(BRONZE I → BRONZE II 등) 올라갈 때 뜸. 보이면 매칭 영역
+     * 중심을 탭해 dismiss.
+     */
+    private suspend fun dismissPromotionIfPresent(ctx: TaskContext): Boolean = with(ctx) {
+        val match = find(bucket, "promotion") ?: return@with false
+        progress("승격 화면 감지 → 탭으로 넘김")
+        tap(match.centerX, match.centerY)
+        humanDelay(1100L, 300L)
+        return@with true
+    }
+
+    /**
      * 결과 화면(result_indicator) 또는 총결과(summary_done) 둘 중 하나가 나타날
-     * 때까지 대기.
+     * 때까지 대기. 도중에 승격 화면이 뜨면 자동 처리.
      */
     private suspend fun waitForResultOrSummary(ctx: TaskContext): Boolean = with(ctx) {
         val deadline = System.currentTimeMillis() + matchTimeoutMs
         while (System.currentTimeMillis() < deadline) {
             if (find(bucket, "summary_done") != null) return true
             if (find(bucket, "result_indicator") != null) return true
+            dismissPromotionIfPresent(this)
             kotlinx.coroutines.delay(500L)
         }
         return false

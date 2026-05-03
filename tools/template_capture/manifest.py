@@ -104,6 +104,7 @@ TEMPLATES = [
     ("rankingchallenge", "next",             True, "결과 화면의 '다음 경기 시작 (n)' 또는 '다음 (n)' 버튼 — 위치 고정이라 좌표+가드=result_indicator 추천"),
     ("rankingchallenge", "summary_done",     True, "5경기 모두 끝난 뒤 뜨는 '총 5게임 진행 결과' 화면 식별 — 헤더 텍스트 권장"),
     ("rankingchallenge", "summary_confirm",  True, "'총 5게임 진행 결과' 화면 하단의 '확인' 파란 버튼"),
+    ("rankingchallenge", "promotion",        False, "승격 화면 식별 — '승격' 글자 또는 BRONZE/SILVER/GOLD 트로피 영역. 따로 버튼 없이 화면 어디든 탭하면 넘어감"),
     ("rankingchallenge", "refresh_button",   True, "메인 우상단의 갱신 버튼 — 무료/포인트/스타 모두 같은 위치 (글자만 변함). 좌표+가드=main_indicator 추천"),
     ("rankingchallenge", "refresh_paid_dialog", False, "'즉시 갱신' 다이얼로그 헤더 — 헤더 텍스트('즉시 갱신' 또는 '상대 리스트를 즉시 갱신하시겠습니까?') 영역. refresh_paid_confirm 의 가드로 사용"),
     ("rankingchallenge", "refresh_paid_confirm", False, "'즉시 갱신' 다이얼로그 하단 파란 버튼 (P 3,000 / ★ 50 등 글자가 매번 변함) — **좌표로 저장 + 가드=refresh_paid_dialog 강력 추천** (PNG 매칭은 글자 변경으로 불안정)"),
