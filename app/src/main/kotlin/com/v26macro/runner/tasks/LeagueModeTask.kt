@@ -42,30 +42,28 @@ class LeagueModeTask : Task {
         }
         humanDelay(900L, 200L)
 
-        // 리섬 플레이(이어하기) 다이얼로그 — 리그 대시보드 진입 직후 자동으로 뜨거나
-        // PLAY BALL 누른 직후 뜸. 양쪽 케이스 모두 커버하기 위해 두 번 체크한다.
-        var resumed = handleResumePlayIfPresent(this)
-
-        if (!resumed) {
-            if (!tapTemplate(bucket, "play_ball_button", timeoutMs = 6000L)) {
-                // PLAY BALL 안 보이고 리섬도 아직 안 떴을 수도 있음 — 한 번 더 확인
-                if (handleResumePlayIfPresent(this)) {
-                    resumed = true
-                } else {
-                    tapBack(); returnToMainMenu()
-                    return missingAssets("$bucket/play_ball_button")
-                }
-            } else {
-                humanDelay(900L, 200L)
-                // PLAY BALL 누른 뒤에 리섬 다이얼로그가 뜨는 케이스
-                if (handleResumePlayIfPresent(this)) {
-                    resumed = true
-                }
-            }
+        // 리그 메인의 가운데 버튼 라벨이 두 가지로 바뀜:
+        //   - 평소(진행 중인 경기 없음): 'PLAY BALL' → SELECT TYPE 흐름 진입
+        //   - 경기 도중 나갔다 다시 들어옴: 'RESUME PLAY' → 곧바로 게임 화면 복귀
+        // 위치는 같지만 글자가 달라서 PNG 매칭이 다름.
+        val resumed = if (find(bucket, "resume_play_button") != null) {
+            progress("리그모드: RESUME PLAY 감지 → 이전 경기 이어하기")
+            tapTemplate(bucket, "resume_play_button", timeoutMs = 3000L)
+            humanDelay(1500L, 300L)
+            true
+        } else {
+            false
         }
 
         if (!resumed) {
-            // 정상 흐름: SELECT TYPE → 풀 플레이 → START
+            // 정상 흐름: PLAY BALL → SELECT TYPE → 풀 플레이 → START
+            if (!tapTemplate(bucket, "play_ball_button", timeoutMs = 6000L)) {
+                // PLAY BALL 도 RESUME PLAY 도 안 보임 → 매크로 외에서 화면이 바뀐 상태
+                tapBack(); returnToMainMenu()
+                return missingAssets("$bucket/play_ball_button")
+            }
+            humanDelay(900L, 200L)
+
             if (waitForTemplate(bucket, "select_type_header", timeoutMs = 8000L) == null) {
                 tapBack(); returnToMainMenu()
                 return TaskResult.Failed("SELECT TYPE 화면 미진입")
@@ -79,9 +77,6 @@ class LeagueModeTask : Task {
                 tapBack(); returnToMainMenu()
                 return missingAssets("$bucket/start_button")
             }
-            humanDelay(1500L, 300L)
-        } else {
-            progress("리그모드: 이전 경기 이어하기로 재개됨")
             humanDelay(1500L, 300L)
         }
 
@@ -211,29 +206,6 @@ class LeagueModeTask : Task {
             delay(500L)
         }
         return@with false
-    }
-
-    /**
-     * 리그 대시보드 진입 또는 PLAY BALL 탭 직후에 '리섬 플레이' 다이얼로그가 떠있는지
-     * 확인하고, 떠있으면 '이어하기' 버튼 탭. true 면 SELECT TYPE 흐름 스킵하고 바로
-     * 인게임으로 진행.
-     *
-     * 다이얼로그 헤더(resume_play_dialog) 와 버튼(resume_play_yes) 둘 다 선택 템플릿이라
-     * 둘 다 정의 안 됐으면 그냥 false 반환 (정상 흐름 진행).
-     */
-    private suspend fun handleResumePlayIfPresent(ctx: TaskContext): Boolean = with(ctx) {
-        val dialog = find(bucket, "resume_play_dialog") ?: return@with false
-        progress("리그모드: 리섬 플레이 다이얼로그 감지 → 이어하기")
-        // 1차: 명시적으로 정의된 '이어하기' 버튼
-        if (tapTemplate(bucket, "resume_play_yes", timeoutMs = 2500L)) {
-            humanDelay(1200L, 300L)
-            return@with true
-        }
-        // 2차 안전망: 다이얼로그 중심 살짝 아래 (보통 '예/이어하기' 버튼 위치)
-        progress("리그모드: resume_play_yes 템플릿 없음 — 다이얼로그 중심 추정 탭")
-        tap(dialog.centerX, dialog.centerY + 120)
-        humanDelay(1200L, 300L)
-        return@with true
     }
 
     /**
