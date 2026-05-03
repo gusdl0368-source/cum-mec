@@ -96,14 +96,15 @@ TEMPLATES = [
     #       → 갱신 버튼 탭 (무료 3 → 포인트 6 → 스타 6 순서로 자동 라벨 변경)
     #       → 갱신 완료되면 다시 5경기. '금일 갱신 완료' 보이면 전체 종료.
     ("rankingchallenge", "entry",            True, "리그모드 화면의 '랭킹 챌린지' 카드 (좌상단, 트로피 + BRONZE)"),
+    ("rankingchallenge", "main_indicator",   True, "랭킹챌린지 메인 화면 식별 — 상단의 '챌린지 포인트' 헤더 글자 권장 (5경기 진행 여부와 무관하게 항상 보임)"),
     ("rankingchallenge", "play_ball",        True, "상대 카드 우측의 'PLAY BALL' 흰색 버튼 — 매치 가능 신호 (5명 다 두면 5번 다 보임). 안 보이면 매크로가 갱신/종료 판단"),
-    ("rankingchallenge", "continuous_play",  True, "랭킹챌린지 메인 하단의 '연속 경기' 보라 버튼 (5경기 자동 진행 트리거)"),
+    ("rankingchallenge", "continuous_play",  True, "랭킹챌린지 메인 하단의 '연속 경기' 보라 버튼 (5경기 자동 진행 트리거) — 5경기 다 끝나면 어두워짐 (그래도 탭은 동작)"),
     ("rankingchallenge", "proceed",          True, "'알림' 다이얼로그의 '경기 진행' 파란 버튼"),
     ("rankingchallenge", "result_indicator", True, "한 경기 결과 화면 식별 — 'LOSE' / 'WIN' 영역 또는 '경기 결과' 헤더 권장"),
     ("rankingchallenge", "next",             True, "결과 화면의 '다음 경기 시작 (n)' 또는 '다음 (n)' 버튼 — 위치 고정이라 좌표+가드=result_indicator 추천"),
     ("rankingchallenge", "summary_done",     True, "5경기 모두 끝난 뒤 뜨는 '총 5게임 진행 결과' 화면 식별 — 헤더 텍스트 권장"),
     ("rankingchallenge", "summary_confirm",  True, "'총 5게임 진행 결과' 화면 하단의 '확인' 파란 버튼"),
-    ("rankingchallenge", "refresh_button",   True, "메인 우상단의 갱신 버튼 — 무료/포인트/스타 모두 같은 위치 (글자만 변함). 좌표+가드=continuous_play 추천"),
+    ("rankingchallenge", "refresh_button",   True, "메인 우상단의 갱신 버튼 — 무료/포인트/스타 모두 같은 위치 (글자만 변함). 좌표+가드=main_indicator 추천"),
     ("rankingchallenge", "refresh_paid_dialog", False, "'즉시 갱신' 다이얼로그 헤더 — 헤더 텍스트('즉시 갱신' 또는 '상대 리스트를 즉시 갱신하시겠습니까?') 영역. refresh_paid_confirm 의 가드로 사용"),
     ("rankingchallenge", "refresh_paid_confirm", False, "'즉시 갱신' 다이얼로그 하단 파란 버튼 (P 3,000 / ★ 50 등 글자가 매번 변함) — **좌표로 저장 + 가드=refresh_paid_dialog 강력 추천** (PNG 매칭은 글자 변경으로 불안정)"),
     ("rankingchallenge", "refresh_done",     False, "갱신 버튼이 '금일 갱신 완료' 상태일 때만 매칭 — 보이면 매크로 종료"),

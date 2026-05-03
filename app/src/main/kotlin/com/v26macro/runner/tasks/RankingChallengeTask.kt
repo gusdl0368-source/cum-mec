@@ -138,12 +138,14 @@ class RankingChallengeTask(
      * 끝나있는 케이스) 둘 다 호출됨.
      */
     private suspend fun performRefresh(ctx: TaskContext): Boolean = with(ctx) {
-        // ranking main 화면임을 검증 (continuous_play 보일 때까지 대기)
+        // ranking main 화면임을 검증.
+        // continuous_play 는 5경기 다 끝나면 어두워져서 PNG 매칭이 불안정.
+        // 대신 '챌린지 포인트' 헤더 같은 상태와 무관한 main_indicator 를 사용.
         val onRankingMain = waitForTemplate(
-            bucket, "continuous_play", timeoutMs = 8000L
+            bucket, "main_indicator", timeoutMs = 8000L
         ) != null
         if (!onRankingMain) {
-            progress("갱신: ranking main 못 찾음 (continuous_play 안 보임)")
+            progress("갱신: ranking main 못 찾음 (main_indicator 안 보임)")
             return@with false
         }
         // 갱신 완료 상태면 false 반환 (호출자가 종료 결정)
