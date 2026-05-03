@@ -102,7 +102,8 @@ TEMPLATES = [
     ("rankingchallenge", "summary_done",     True, "5경기 모두 끝난 뒤 뜨는 '총 5게임 진행 결과' 화면 식별 — 헤더 텍스트 권장"),
     ("rankingchallenge", "summary_confirm",  True, "'총 5게임 진행 결과' 화면 하단의 '확인' 파란 버튼"),
     ("rankingchallenge", "refresh_button",   True, "메인 우상단의 갱신 버튼 — 무료/포인트/스타 모두 같은 위치 (글자만 변함). 좌표+가드=continuous_play 추천"),
-    ("rankingchallenge", "refresh_paid_confirm", False, "포인트/스타 갱신 시 한 번 더 뜨는 확인 다이얼로그의 버튼 (무료 갱신은 안 뜸)"),
+    ("rankingchallenge", "refresh_paid_dialog", False, "'즉시 갱신' 다이얼로그 헤더 — 헤더 텍스트('즉시 갱신' 또는 '상대 리스트를 즉시 갱신하시겠습니까?') 영역. refresh_paid_confirm 의 가드로 사용"),
+    ("rankingchallenge", "refresh_paid_confirm", False, "'즉시 갱신' 다이얼로그 하단 파란 버튼 (P 3,000 / ★ 50 등 글자가 매번 변함) — **좌표로 저장 + 가드=refresh_paid_dialog 강력 추천** (PNG 매칭은 글자 변경으로 불안정)"),
     ("rankingchallenge", "refresh_done",     False, "갱신 버튼이 '금일 갱신 완료' 상태일 때만 매칭 — 보이면 매크로 종료"),
     ("rankingchallenge", "incomplete_confirm", False, "(드물게) '경기를 완료하지 않은 상대가 있습니다' 팝업의 '확인' — 보통 안 뜸"),
 
