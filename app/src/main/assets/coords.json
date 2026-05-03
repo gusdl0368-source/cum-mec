@@ -1,7 +1,8 @@
 {
   "home/exit_cancel": {
-    "x": 0.3319,
-    "y": 0.6289
+    "guard": "home/exit_cancel",
+    "x": 0.3417,
+    "y": 0.6266
   },
   "homerunrace/first_player": {
     "guard": "homerunrace/first_player",
@@ -14,15 +15,18 @@
     "y": 0.4062
   },
   "pointshop/entry": {
-    "x": 0.7,
-    "y": 0.9594
+    "guard": "pointshop/entry",
+    "x": 0.6986,
+    "y": 0.9672
   },
   "pointshop/entry_popup_x": {
-    "x": 0.4986,
-    "y": 0.9336
+    "guard": "pointshop/entry_popup_x",
+    "x": 0.4917,
+    "y": 0.9305
   },
   "pointshop/exit": {
-    "x": 0.4986,
+    "guard": "pointshop/exit",
+    "x": 0.5,
     "y": 0.9547
   },
   "rankingchallenge/incomplete_confirm": {
@@ -30,8 +34,9 @@
     "y": 0.3523
   },
   "rankingchallenge/refresh_paid_confirm": {
-    "x": 0.5083,
-    "y": 0.6273
+    "guard": "rankingchallenge/refresh_paid_dialog",
+    "x": 0.5139,
+    "y": 0.6281
   },
   "specialmatch/gauge_left": {
     "guard": "specialmatch/select_type_header",
@@ -39,7 +44,8 @@
     "y": 0.7023
   },
   "specialmatch/random_pick_card": {
-    "x": 0.6806,
+    "guard": "specialmatch/select_type_header",
+    "x": 0.6986,
     "y": 0.3227
   },
   "specialmatch/start2": {
