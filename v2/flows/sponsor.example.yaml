@@ -1,0 +1,22 @@
+# 후원금 정산 — Phase 3 검증용 초안.
+# 실제 버튼 텍스트는 트레이스 녹화 후 확정. 우선 가설.
+name: 후원금 정산
+require: text_visible("플레이볼")        # 메인 화면 보장
+
+steps:
+  - tap_when_visible: "후원금"
+
+  # 정산 다이얼로그 도달 — 헤더 텍스트로 확인
+  - wait_text: "후원금"
+  - tap_when_visible: "정산"
+
+  # 정산 후 보상 확인 다이얼로그가 1~여러 번 뜸 — 더 이상 안 뜰 때까지 처리
+  - loop:
+      until: text_not_visible("확인")
+      max: 5
+      do:
+        - tap_when_visible_if_present: "확인"
+        - sleep: 0.6
+
+  # 메인까지 BACK
+  - macro: back_to_main
